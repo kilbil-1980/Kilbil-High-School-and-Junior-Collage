@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 const { Pool } = pg;
 import type { 
@@ -62,7 +62,7 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   async getAnnouncements(): Promise<Announcement[]> {
     try {
-      const results = await db.select().from(schema.announcements).orderBy(db.desc(schema.announcements.date));
+      const results = await db.select().from(schema.announcements).orderBy(desc(schema.announcements.date));
       return results;
     } catch (error) {
       console.error("[getAnnouncements] Database error:", error);
@@ -119,7 +119,7 @@ export class DatabaseStorage implements IStorage {
 
   async getAdmissions(): Promise<Admission[]> {
     try {
-      const results = await db.select().from(schema.admissions).orderBy(db.desc(schema.admissions.submittedAt));
+      const results = await db.select().from(schema.admissions).orderBy(desc(schema.admissions.submittedAt));
       return results;
     } catch (error) {
       console.error("[getAdmissions] Database error:", error);
@@ -137,7 +137,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getGalleryImages(): Promise<GalleryImage[]> {
-    const results = await db.select().from(schema.galleryImages).orderBy(db.desc(schema.galleryImages.uploadedAt));
+    const results = await db.select().from(schema.galleryImages).orderBy(desc(schema.galleryImages.uploadedAt));
     return results;
   }
 
@@ -189,7 +189,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCareers(): Promise<Career[]> {
-    const results = await db.select().from(schema.careers).orderBy(db.desc(schema.careers.createdAt));
+    const results = await db.select().from(schema.careers).orderBy(desc(schema.careers.createdAt));
     return results;
   }
 
