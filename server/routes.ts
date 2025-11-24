@@ -21,6 +21,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const announcements = await storage.getAnnouncements();
       res.json(announcements);
     } catch (error) {
+      console.error("[GET /api/announcements] Error:", error);
       res.status(500).json({ message: "Failed to fetch announcements" });
     }
   });
@@ -111,6 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const admissions = await storage.getAdmissions();
       res.json(admissions);
     } catch (error) {
+      console.error("[GET /api/admissions] Error:", error);
       res.status(500).json({ message: "Failed to fetch admissions" });
     }
   });

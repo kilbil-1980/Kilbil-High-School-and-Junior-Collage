@@ -61,8 +61,13 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getAnnouncements(): Promise<Announcement[]> {
-    const results = await db.select().from(schema.announcements).orderBy(db.desc(schema.announcements.date));
-    return results;
+    try {
+      const results = await db.select().from(schema.announcements).orderBy(db.desc(schema.announcements.date));
+      return results;
+    } catch (error) {
+      console.error("[getAnnouncements] Database error:", error);
+      throw error;
+    }
   }
 
   async createAnnouncement(announcement: InsertAnnouncement): Promise<Announcement> {
@@ -113,8 +118,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAdmissions(): Promise<Admission[]> {
-    const results = await db.select().from(schema.admissions).orderBy(db.desc(schema.admissions.submittedAt));
-    return results;
+    try {
+      const results = await db.select().from(schema.admissions).orderBy(db.desc(schema.admissions.submittedAt));
+      return results;
+    } catch (error) {
+      console.error("[getAdmissions] Database error:", error);
+      throw error;
+    }
   }
 
   async createAdmission(admission: InsertAdmission): Promise<Admission> {
