@@ -13,11 +13,12 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
   const form = useForm({
     defaultValues: {
+      username: "",
       password: "",
     },
   });
 
-  const onSubmit = async (data: { password: string }) => {
+  const onSubmit = async (data: { username: string; password: string }) => {
     setIsLoading(true);
     try {
       const res = await fetch("/api/admin/login", {
@@ -31,7 +32,7 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         toast({ title: "Success", description: "Logged in successfully" });
         onLoginSuccess();
       } else {
-        toast({ title: "Error", description: "Invalid password", variant: "destructive" });
+        toast({ title: "Error", description: "Invalid credentials", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Error", description: "Login failed", variant: "destructive" });
@@ -50,11 +51,24 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
             </div>
           </div>
           <CardTitle className="text-2xl">Admin Panel</CardTitle>
-          <CardDescription>Enter the password to access the admin dashboard</CardDescription>
+          <CardDescription>Enter your credentials to access the dashboard</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="admin" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="password"
@@ -62,7 +76,7 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Enter admin password" {...field} />
+                      <Input type="password" placeholder="Enter password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -71,6 +85,11 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
               <Button type="submit" disabled={isLoading} className="w-full" data-testid="button-admin-login">
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
+              <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
+                <p><strong>Demo credentials:</strong></p>
+                <p>Username: admin</p>
+                <p>Password: kilbil123456</p>
+              </div>
             </form>
           </Form>
         </CardContent>

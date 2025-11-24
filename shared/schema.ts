@@ -1,6 +1,13 @@
-import { pgTable, text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
+  password: text("password").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 export const announcements = pgTable("announcements", {
   id: varchar("id").primaryKey(),
@@ -87,6 +94,11 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({ i
   rating: z.number().min(1).max(5).optional().default(5),
   order: z.number().optional().default(0),
 });
+
+export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({ id: true, createdAt: true });
+
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 
 export type Announcement = typeof announcements.$inferSelect;
 export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;

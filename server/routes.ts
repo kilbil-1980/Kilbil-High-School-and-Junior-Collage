@@ -228,14 +228,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/login", async (req, res) => {
     try {
-      const { password } = req.body;
-      const adminPassword = process.env.ADMIN_PASSWORD || "kilbil2024";
+      const { username, password } = req.body;
+      const user = await storage.getAdminUser(username);
       
-      if (password === adminPassword) {
+      if (user && user.password === password) {
         req.session!.adminLoggedIn = true;
+        req.session!.adminUsername = username;
         res.json({ success: true });
       } else {
-        res.status(401).json({ message: "Invalid password" });
+        res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
       res.status(500).json({ message: "Login failed" });
@@ -252,6 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/logout", async (req, res) => {
     req.session!.adminLoggedIn = false;
+    req.session!.adminUsername = undefined;
     res.json({ success: true });
   });
 
