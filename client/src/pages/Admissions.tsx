@@ -18,7 +18,14 @@ export default function Admissions() {
     phone: "",
     className: "",
   });
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState({
+    birthCertificate: null as File | null,
+    reportCard: null as File | null,
+    transferCertificate: null as File | null,
+    photographs: null as File | null,
+    addressProof: null as File | null,
+    parentIdProof: null as File | null,
+  });
 
   const admissionMutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -30,7 +37,7 @@ export default function Admissions() {
         description: "Your admission application has been received. We will contact you soon.",
       });
       setFormData({ name: "", email: "", phone: "", className: "" });
-      setFile(null);
+      setFiles({ birthCertificate: null, reportCard: null, transferCertificate: null, photographs: null, addressProof: null, parentIdProof: null });
       queryClient.invalidateQueries({ queryKey: ["/api/admissions"] });
     },
     onError: () => {
@@ -60,9 +67,12 @@ export default function Admissions() {
     submitData.append("phone", formData.phone);
     submitData.append("className", formData.className);
     
-    if (file) {
-      submitData.append("document", file);
-    }
+    if (files.birthCertificate) submitData.append("birthCertificate", files.birthCertificate);
+    if (files.reportCard) submitData.append("reportCard", files.reportCard);
+    if (files.transferCertificate) submitData.append("transferCertificate", files.transferCertificate);
+    if (files.photographs) submitData.append("photographs", files.photographs);
+    if (files.addressProof) submitData.append("addressProof", files.addressProof);
+    if (files.parentIdProof) submitData.append("parentIdProof", files.parentIdProof);
 
     admissionMutation.mutate(submitData);
   };
@@ -252,21 +262,83 @@ export default function Admissions() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="document">
-                  <span className="flex items-center gap-2">
+              <div className="space-y-4">
+                <Label>
+                  <span className="flex items-center gap-2 font-medium">
                     <FileText className="w-4 h-4" />
-                    Upload Document (Optional)
+                    Required Documents (Optional)
                   </span>
                 </Label>
-                <Input
-                  id="document"
-                  type="file"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  data-testid="input-document"
-                />
-                <p className="text-xs text-muted-foreground">Accepted formats: PDF, JPG, PNG (Max 5MB)</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="birthCert" className="text-sm">Birth Certificate</Label>
+                    <Input
+                      id="birthCert"
+                      type="file"
+                      onChange={(e) => setFiles({ ...files, birthCertificate: e.target.files?.[0] || null })}
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      data-testid="input-birth-certificate"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reportCard" className="text-sm">Previous Year's Report Card</Label>
+                    <Input
+                      id="reportCard"
+                      type="file"
+                      onChange={(e) => setFiles({ ...files, reportCard: e.target.files?.[0] || null })}
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      data-testid="input-report-card"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="transferCert" className="text-sm">Transfer Certificate</Label>
+                    <Input
+                      id="transferCert"
+                      type="file"
+                      onChange={(e) => setFiles({ ...files, transferCertificate: e.target.files?.[0] || null })}
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      data-testid="input-transfer-certificate"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="photographs" className="text-sm">Passport Size Photographs</Label>
+                    <Input
+                      id="photographs"
+                      type="file"
+                      onChange={(e) => setFiles({ ...files, photographs: e.target.files?.[0] || null })}
+                      accept=".jpg,.jpeg,.png"
+                      data-testid="input-photographs"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="addressProof" className="text-sm">Address Proof (Aadhar/Bill)</Label>
+                    <Input
+                      id="addressProof"
+                      type="file"
+                      onChange={(e) => setFiles({ ...files, addressProof: e.target.files?.[0] || null })}
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      data-testid="input-address-proof"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="parentIdProof" className="text-sm">Parent/Guardian ID Proof</Label>
+                    <Input
+                      id="parentIdProof"
+                      type="file"
+                      onChange={(e) => setFiles({ ...files, parentIdProof: e.target.files?.[0] || null })}
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      data-testid="input-parent-id-proof"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground">Accepted formats: PDF, JPG, PNG (Max 5MB each)</p>
               </div>
 
               <Button

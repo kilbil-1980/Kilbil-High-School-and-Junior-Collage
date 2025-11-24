@@ -1,8 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Users, GraduationCap, Heart } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { Career } from "@shared/schema";
 
 export default function Career() {
+  const { data: careers } = useQuery<Career[]>({
+    queryKey: ["/api/careers"],
+  });
   return (
     <div className="min-h-screen bg-background py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,43 +59,26 @@ export default function Career() {
             <CardTitle>Current Openings</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="border rounded-md p-4 hover-elevate" data-testid="card-opening-1">
-                <h3 className="font-semibold text-lg mb-2">Mathematics Teacher (Secondary)</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  We are looking for an experienced Mathematics teacher for grades 8-10. Candidate should have strong subject knowledge and passion for teaching.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-xs bg-accent px-2 py-1 rounded">Full-time</span>
-                  <span className="text-xs bg-accent px-2 py-1 rounded">B.Ed Required</span>
-                  <span className="text-xs bg-accent px-2 py-1 rounded">2+ years experience</span>
-                </div>
+            {!careers || careers.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No job openings at the moment. Check back soon!</p>
+            ) : (
+              <div className="space-y-4">
+                {careers.map((career) => (
+                  <div key={career.id} className="border rounded-md p-4 hover-elevate" data-testid={`card-opening-${career.id}`}>
+                    <h3 className="font-semibold text-lg mb-2">{career.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-3">{career.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {career.qualifications && (
+                        <span className="text-xs bg-accent px-2 py-1 rounded">{career.qualifications}</span>
+                      )}
+                      {career.experience && (
+                        <span className="text-xs bg-accent px-2 py-1 rounded">{career.experience}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-
-              <div className="border rounded-md p-4 hover-elevate" data-testid="card-opening-2">
-                <h3 className="font-semibold text-lg mb-2">Science Teacher (Higher Secondary)</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Seeking a qualified Science teacher for Physics/Chemistry/Biology for grades 11-12. Strong academic background preferred.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-xs bg-accent px-2 py-1 rounded">Full-time</span>
-                  <span className="text-xs bg-accent px-2 py-1 rounded">M.Sc + B.Ed</span>
-                  <span className="text-xs bg-accent px-2 py-1 rounded">3+ years experience</span>
-                </div>
-              </div>
-
-              <div className="border rounded-md p-4 hover-elevate" data-testid="card-opening-3">
-                <h3 className="font-semibold text-lg mb-2">Physical Education Teacher</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Looking for an energetic sports teacher to conduct physical education classes and manage sports activities.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-xs bg-accent px-2 py-1 rounded">Full-time</span>
-                  <span className="text-xs bg-accent px-2 py-1 rounded">B.P.Ed</span>
-                  <span className="text-xs bg-accent px-2 py-1 rounded">1+ years experience</span>
-                </div>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 

@@ -19,8 +19,8 @@ export function AdminFaculty() {
     experience: "",
     subject: "",
     bio: "",
-    photo: "",
   });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   const { data: facultyList } = useQuery<Faculty[]>({
     queryKey: ["/api/faculty"],
@@ -30,7 +30,8 @@ export function AdminFaculty() {
     mutationFn: (data: typeof formData) => apiRequest("POST", "/api/faculty", data),
     onSuccess: () => {
       toast({ title: "Success", description: "Faculty member added successfully" });
-      setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "", photo: "" });
+      setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "" });
+      setPhotoFile(null);
       queryClient.invalidateQueries({ queryKey: ["/api/faculty"] });
     },
   });
@@ -43,13 +44,23 @@ export function AdminFaculty() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.qualification || !formData.subject || !formData.bio) {
       toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
       return;
     }
-    createMutation.mutate(formData);
+
+    let photoBase64 = "";
+    if (photoFile) {
+      photoBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(photoFile);
+      });
+    }
+
+    createMutation.mutate({ ...formData, photo: photoBase64 || undefined });
   };
 
   return (
@@ -117,6 +128,18 @@ export function AdminFaculty() {
                 rows={3}
                 data-testid="textarea-faculty-bio"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fac-photo">Photo (Optional)</Label>
+              <Input
+                id="fac-photo"
+                type="file"
+                onChange={(e) => setPhotoFile(e.target.files?.[0] || null)}
+                accept=".jpg,.jpeg,.png"
+                data-testid="input-faculty-photo"
+              />
+              <p className="text-xs text-muted-foreground">Accepted formats: JPG, PNG (Max 5MB)</p>
             </div>
 
             <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-faculty">

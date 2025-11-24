@@ -180,26 +180,27 @@ export function Navbar() {
               <Link href="/contact">Contact</Link>
             </Button>
 
-            <Button 
-              variant={isActive("/announcements") ? "secondary" : "ghost"} 
-              size="sm"
-              asChild
-              data-testid="button-nav-announcements"
-              className="relative"
-            >
-              <Link href="/announcements" className="relative">
-                <Bell className="w-4 h-4" />
-                {announcementCount > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                    data-testid="badge-announcement-count"
-                  >
-                    {announcementCount}
-                  </Badge>
-                )}
-              </Link>
-            </Button>
+            <div className="relative">
+              <Button 
+                variant={isActive("/announcements") ? "secondary" : "ghost"} 
+                size="sm"
+                asChild
+                data-testid="button-nav-announcements"
+              >
+                <Link href="/announcements">
+                  <Bell className="w-4 h-4" />
+                </Link>
+              </Button>
+              {announcementCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                  data-testid="badge-announcement-count"
+                >
+                  {announcementCount}
+                </Badge>
+              )}
+            </div>
 
             {authStatus?.authenticated && (
               <>
