@@ -32,6 +32,9 @@ export const faculty = pgTable("faculty", {
 export const timetables = pgTable("timetables", {
   id: varchar("id").primaryKey(),
   category: text("category").notNull(),
+  gradeLevel: text("grade_level").notNull().default("All Grades"),
+  description: text("description").notNull().default(""),
+  batchTime: text("batch_time").notNull().default(""),
   periods: text("periods").notNull(),
 });
 
@@ -104,7 +107,11 @@ export const insertFacultySchema = createInsertSchema(faculty).omit({ id: true, 
   photo: z.string().optional(),
   order: z.number().optional().default(0),
 });
-export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: true });
+export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: true }).extend({
+  gradeLevel: z.string().optional().default("All Grades"),
+  description: z.string().optional().default(""),
+  batchTime: z.string().optional().default(""),
+});
 export const insertAdmissionSchema = createInsertSchema(admissions).omit({ id: true }).extend({
   lastSchool: z.string().optional(),
   birthCertificate: z.string().optional(),
