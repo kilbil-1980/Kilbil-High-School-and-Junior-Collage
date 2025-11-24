@@ -180,26 +180,24 @@ export function Navbar() {
               <Link href="/contact">Contact</Link>
             </Button>
 
-            <div className="relative">
+            <div className="relative inline-flex items-center">
               <Button 
                 variant={isActive("/announcements") ? "secondary" : "ghost"} 
                 size="sm"
+                className="relative"
                 asChild
+                title={`View ${announcementCount} ${announcementCount === 1 ? 'announcement' : 'announcements'}`}
                 data-testid="button-nav-announcements"
               >
-                <Link href="/announcements">
+                <Link href="/announcements" className="flex items-center gap-2">
                   <Bell className="w-4 h-4" />
+                  {announcementCount > 0 && (
+                    <span className="text-xs font-semibold bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded-full min-w-5 text-center">
+                      {announcementCount}
+                    </span>
+                  )}
                 </Link>
               </Button>
-              {announcementCount > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                  data-testid="badge-announcement-count"
-                >
-                  {announcementCount}
-                </Badge>
-              )}
             </div>
 
             {authStatus?.authenticated && (
@@ -302,7 +300,7 @@ export function Navbar() {
                 <Bell className="w-4 h-4" />
                 Announcements
                 {announcementCount > 0 && (
-                  <Badge variant="destructive" className="ml-auto" data-testid="badge-mobile-announcement-count">
+                  <Badge variant="secondary" className="ml-auto text-xs font-semibold" data-testid="badge-mobile-announcement-count">
                     {announcementCount}
                   </Badge>
                 )}

@@ -74,7 +74,7 @@ export default function Announcements() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">{announcement.content}</p>
+                  <p className="text-muted-foreground leading-relaxed break-words max-h-48 overflow-y-auto">{announcement.content}</p>
                 </CardContent>
               </Card>
             ))}
