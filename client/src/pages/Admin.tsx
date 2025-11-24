@@ -37,11 +37,14 @@ export default function Admin() {
 
   const handleTabChange = () => {
     // Scroll to top when switching tabs
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.documentElement.scrollTop = 0;
+    }, 0);
   };
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-background py-16" id="admin-page">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">
@@ -55,7 +58,7 @@ export default function Admin() {
           </p>
         </div>
 
-        <Tabs defaultValue="announcements" className="w-full" onValueChange={handleTabChange}>
+        <Tabs defaultValue="announcements" className="w-full" onValueChange={() => handleTabChange()}>
           <TabsList className={`grid w-full ${isMasterAdmin ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-3 lg:grid-cols-7'} mb-8`}>
             {isMasterAdmin && (
               <TabsTrigger value="management" data-testid="tab-management" className="flex items-center gap-1">
