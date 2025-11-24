@@ -127,7 +127,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const parsed = insertTimetableSchema.parse(req.body);
       const timetable = await storage.createTimetable(parsed);
+      await logAuditEvent(req, "CREATE", "timetables", timetable.id, null, timetable);
       res.status(201).json(timetable);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid timetable data" });
+    }
+  });
+
+  app.patch("/api/timetables/:id", async (req, res) => {
+    try {
+      const old = await storage.getTimetables().then(t => t.find(x => x.id === req.params.id));
+      const parsed = insertTimetableSchema.parse(req.body);
+      const updated = await storage.updateTimetable(req.params.id, parsed);
+      await logAuditEvent(req, "UPDATE", "timetables", req.params.id, old, updated);
+      res.json(updated);
     } catch (error) {
       res.status(400).json({ message: "Invalid timetable data" });
     }
@@ -135,7 +148,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/timetables/:id", async (req, res) => {
     try {
+      const old = await storage.getTimetables().then(t => t.find(x => x.id === req.params.id));
       await storage.deleteTimetable(req.params.id);
+      await logAuditEvent(req, "DELETE", "timetables", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete timetable" });
