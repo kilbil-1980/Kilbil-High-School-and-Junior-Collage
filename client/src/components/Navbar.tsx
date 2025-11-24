@@ -17,6 +17,8 @@ import type { Announcement } from "@shared/schema";
 export function Navbar() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
+  const [mobileAcademicsOpen, setMobileAcademicsOpen] = useState(false);
 
   const isActive = (path: string) => location === path;
 
@@ -45,13 +47,13 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-3 hover-elevate active-elevate-2 px-3 py-2 rounded-md" data-testid="link-home">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">K</span>
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover-elevate active-elevate-2 px-2 sm:px-3 py-2 rounded-md" data-testid="link-home">
+            <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+              <span className="text-primary-foreground font-bold text-sm sm:text-lg">K</span>
             </div>
-            <div className="hidden sm:block">
-              <div className="font-bold text-foreground">Kilbil High School</div>
-              <div className="text-xs text-muted-foreground">& Junior Collage</div>
+            <div className="hidden xs:block">
+              <div className="font-bold text-foreground text-xs sm:text-sm lg:text-base leading-tight">Kilbil High School</div>
+              <div className="text-xs text-muted-foreground leading-tight">& Junior Collage</div>
             </div>
           </Link>
 
@@ -60,6 +62,7 @@ export function Navbar() {
               variant={isActive("/") ? "secondary" : "ghost"} 
               size="sm"
               asChild
+              className="text-sm"
               data-testid="button-nav-home"
             >
               <Link href="/">Home</Link>
@@ -68,7 +71,7 @@ export function Navbar() {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-9" data-testid="button-nav-about">About</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="h-9 text-sm" data-testid="button-nav-about">About</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[200px] gap-1 p-2">
                       <li>
@@ -101,7 +104,7 @@ export function Navbar() {
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-9" data-testid="button-nav-academics">Academics</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="h-9 text-sm" data-testid="button-nav-academics">Academics</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[200px] gap-1 p-2">
                       <li>
@@ -139,6 +142,7 @@ export function Navbar() {
               variant={isActive("/admissions") ? "secondary" : "ghost"} 
               size="sm"
               asChild
+              className="text-sm"
               data-testid="button-nav-admissions"
             >
               <Link href="/admissions">Admissions</Link>
@@ -148,6 +152,7 @@ export function Navbar() {
               variant={isActive("/facilities") ? "secondary" : "ghost"} 
               size="sm"
               asChild
+              className="text-sm"
               data-testid="button-nav-facilities"
             >
               <Link href="/facilities">Facilities</Link>
@@ -157,6 +162,7 @@ export function Navbar() {
               variant={isActive("/gallery") ? "secondary" : "ghost"} 
               size="sm"
               asChild
+              className="text-sm"
               data-testid="button-nav-gallery"
             >
               <Link href="/gallery">Gallery</Link>
@@ -166,6 +172,7 @@ export function Navbar() {
               variant={isActive("/career") ? "secondary" : "ghost"} 
               size="sm"
               asChild
+              className="text-sm"
               data-testid="button-nav-career"
             >
               <Link href="/career">Career</Link>
@@ -175,6 +182,7 @@ export function Navbar() {
               variant={isActive("/contact") ? "secondary" : "ghost"} 
               size="sm"
               asChild
+              className="text-sm"
               data-testid="button-nav-contact"
             >
               <Link href="/contact">Contact</Link>
@@ -238,64 +246,88 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t bg-background">
           <div className="px-4 py-4 space-y-2">
-            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-home">
+            <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-home">
               <Link href="/">Home</Link>
             </Button>
 
             <div className="space-y-1">
-              <div className="text-sm font-medium px-3 py-2">About</div>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-president">
-                <Link href="/about/president">President's Message</Link>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between text-sm font-medium px-3 py-2 h-auto"
+                onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
+                data-testid="button-mobile-about-toggle"
+              >
+                <span>About</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${mobileAboutOpen ? 'rotate-180' : ''}`} />
               </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-director">
-                <Link href="/about/director">Director's Message</Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-principal">
-                <Link href="/about/principal">Principal's Message</Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-why-us">
-                <Link href="/about/why-us">Why Us</Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-faculty">
-                <Link href="/about/faculty">Faculty</Link>
-              </Button>
+              {mobileAboutOpen && (
+                <>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-president">
+                    <Link href="/about/president">President's Message</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-director">
+                    <Link href="/about/director">Director's Message</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-principal">
+                    <Link href="/about/principal">Principal's Message</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-why-us">
+                    <Link href="/about/why-us">Why Us</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-faculty">
+                    <Link href="/about/faculty">Faculty</Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             <div className="space-y-1">
-              <div className="text-sm font-medium px-3 py-2">Academics</div>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-elementary">
-                <Link href="/academics/elementary">Elementary</Link>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between text-sm font-medium px-3 py-2 h-auto"
+                onClick={() => setMobileAcademicsOpen(!mobileAcademicsOpen)}
+                data-testid="button-mobile-academics-toggle"
+              >
+                <span>Academics</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${mobileAcademicsOpen ? 'rotate-180' : ''}`} />
               </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-primary">
-                <Link href="/academics/primary">Primary</Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-secondary">
-                <Link href="/academics/secondary">Secondary</Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-higher">
-                <Link href="/academics/higher-secondary">Higher Secondary</Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start pl-6" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-timetable">
-                <Link href="/timetable">Timetable</Link>
-              </Button>
+              {mobileAcademicsOpen && (
+                <>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-elementary">
+                    <Link href="/academics/elementary">Elementary</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-primary">
+                    <Link href="/academics/primary">Primary</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-secondary">
+                    <Link href="/academics/secondary">Secondary</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-higher">
+                    <Link href="/academics/higher-secondary">Higher Secondary</Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start pl-8 text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-timetable">
+                    <Link href="/timetable">Timetable</Link>
+                  </Button>
+                </>
+              )}
             </div>
 
-            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admissions">
+            <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admissions">
               <Link href="/admissions">Admissions</Link>
             </Button>
-            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-facilities">
+            <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-facilities">
               <Link href="/facilities">Facilities</Link>
             </Button>
-            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-gallery">
+            <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-gallery">
               <Link href="/gallery">Gallery</Link>
             </Button>
-            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-career">
+            <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-career">
               <Link href="/career">Career</Link>
             </Button>
-            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-contact">
+            <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-contact">
               <Link href="/contact">Contact</Link>
             </Button>
-            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-announcements">
+            <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-announcements">
               <Link href="/announcements" className="flex items-center gap-2">
                 <Bell className="w-4 h-4" />
                 Announcements
@@ -309,10 +341,10 @@ export function Navbar() {
 
             {authStatus?.authenticated && (
               <>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admin">
+                <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admin">
                   <Link href="/admin">Admin</Link>
                 </Button>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => { setMobileMenuOpen(false); handleLogout(); }} data-testid="button-mobile-logout">
+                <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => { setMobileMenuOpen(false); handleLogout(); }} data-testid="button-mobile-logout">
                   Logout
                 </Button>
               </>
