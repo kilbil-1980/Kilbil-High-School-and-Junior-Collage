@@ -1,0 +1,143 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Plus, Trash2, Calendar } from "lucide-react";
+import type { Announcement } from "@shared/schema";
+
+export function AdminAnnouncements() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    priority: 0,
+  });
+
+  const { data: announcements } = useQuery<Announcement[]>({
+    queryKey: ["/api/announcements"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: typeof formData) => apiRequest("POST", "/api/announcements", data),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Announcement created successfully" });
+      setFormData({ title: "", content: "", priority: 0 });
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/announcements/${id}`, {}),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Announcement deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title || !formData.content) {
+      toast({ title: "Error", description: "Please fill all fields", variant: "destructive" });
+      return;
+    }
+    createMutation.mutate(formData);
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Add New Announcement
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="ann-title">Title</Label>
+              <Input
+                id="ann-title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Announcement title"
+                data-testid="input-announcement-title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ann-content">Content</Label>
+              <Textarea
+                id="ann-content"
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                placeholder="Announcement details"
+                rows={4}
+                data-testid="textarea-announcement-content"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ann-priority">Priority (0-10)</Label>
+              <Input
+                id="ann-priority"
+                type="number"
+                min="0"
+                max="10"
+                value={formData.priority}
+                onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
+                data-testid="input-announcement-priority"
+              />
+            </div>
+
+            <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-announcement">
+              {createMutation.isPending ? "Creating..." : "Create Announcement"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Current Announcements</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!announcements || announcements.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8" data-testid="text-no-announcements">
+              No announcements yet
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {announcements.map((announcement) => (
+                <div key={announcement.id} className="border rounded-md p-4" data-testid={`announcement-${announcement.id}`}>
+                  <div className="flex justify-between items-start gap-3 mb-2">
+                    <h4 className="font-semibold">{announcement.title}</h4>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteMutation.mutate(announcement.id)}
+                      data-testid={`button-delete-announcement-${announcement.id}`}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">{announcement.content}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="w-3 h-3" />
+                    {new Date(announcement.date).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
