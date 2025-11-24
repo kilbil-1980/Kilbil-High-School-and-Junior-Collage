@@ -162,6 +162,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/admissions/clear-all", async (req, res) => {
+    try {
+      await storage.deleteAllAdmissions();
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to clear admissions" });
+    }
+  });
+
+  app.get("/api/admissions/download-all", async (req, res) => {
+    try {
+      const admissions = await storage.getAdmissions();
+      if (admissions.length === 0) {
+        return res.status(404).json({ message: "No admissions to download" });
+      }
+
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename="all-admissions-${new Date().toISOString().split('T')[0]}.zip"`);
+
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      archive.on('error', (err) => {
+        console.error('Archive error:', err);
+        res.status(500).json({ message: "Failed to create archive" });
+      });
+      archive.pipe(res);
+
+      const docMap: Record<string, string> = {
+        birthCertificate: 'birth-certificate',
+        reportCard: 'report-card',
+        transferCertificate: 'transfer-certificate',
+        photographs: 'photographs',
+        addressProof: 'address-proof',
+        parentIdProof: 'parent-id-proof'
+      };
+
+      let processed = 0;
+      for (const admission of admissions) {
+        const folder = `${admission.name}`;
+        
+        const pdfDoc = new PDFDocument();
+        const pdfChunks: Buffer[] = [];
+        pdfDoc.on('data', (chunk: Buffer) => pdfChunks.push(chunk));
+        pdfDoc.on('end', () => {
+          const pdfBuffer = Buffer.concat(pdfChunks);
+          archive.append(pdfBuffer, { name: `${folder}/applicant-details.pdf` });
+          
+          for (const [key, filename] of Object.entries(docMap)) {
+            const base64Data = admission[key as keyof typeof admission];
+            if (base64Data && typeof base64Data === 'string') {
+              const buffer = Buffer.from(base64Data, 'base64');
+              archive.append(buffer, { name: `${folder}/${filename}.bin` });
+            }
+          }
+
+          processed++;
+          if (processed === admissions.length) {
+            archive.finalize();
+          }
+        });
+
+        pdfDoc.fontSize(16).text('Admission Application Details', { underline: true });
+        pdfDoc.moveDown();
+        pdfDoc.fontSize(12);
+        pdfDoc.text(`Student Name: ${admission.name}`);
+        pdfDoc.text(`Email: ${admission.email}`);
+        pdfDoc.text(`Phone: ${admission.phone}`);
+        pdfDoc.text(`Class Applying For: ${admission.className}`);
+        if (admission.lastSchool) {
+          pdfDoc.text(`Last School: ${admission.lastSchool}`);
+        }
+        pdfDoc.text(`Submitted Date: ${new Date(admission.submittedAt).toLocaleString()}`);
+        pdfDoc.end();
+      }
+    } catch (error) {
+      console.error("Download all error:", error);
+      res.status(500).json({ message: "Failed to download all documents" });
+    }
+  });
+
   app.get("/api/admissions/:id/download", async (req, res) => {
     try {
       const admission = await storage.getAdmission(req.params.id);

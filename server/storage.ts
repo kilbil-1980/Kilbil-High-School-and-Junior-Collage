@@ -40,6 +40,7 @@ export interface IStorage {
   createAdmission(admission: InsertAdmission): Promise<Admission>;
   deleteAdmission(id: string): Promise<void>;
   getAdmission(id: string): Promise<Admission | undefined>;
+  deleteAllAdmissions(): Promise<void>;
 
   getGalleryImages(): Promise<GalleryImage[]>;
   createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage>;
@@ -145,6 +146,10 @@ export class DatabaseStorage implements IStorage {
   async getAdmission(id: string): Promise<Admission | undefined> {
     const results = await db.select().from(schema.admissions).where(eq(schema.admissions.id, id));
     return results && results.length > 0 ? results[0] : undefined;
+  }
+
+  async deleteAllAdmissions(): Promise<void> {
+    await db.delete(schema.admissions);
   }
 
   async getGalleryImages(): Promise<GalleryImage[]> {

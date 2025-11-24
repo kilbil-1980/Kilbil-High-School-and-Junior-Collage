@@ -85,6 +85,19 @@ export const testimonials = pgTable("testimonials", {
   order: integer("order").notNull().default(0),
 });
 
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey(),
+  action: text("action").notNull(), // CREATE, UPDATE, DELETE
+  tableName: text("table_name").notNull(),
+  recordId: text("record_id").notNull(),
+  adminUsername: text("admin_username"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  oldData: text("old_data"), // JSON string
+  newData: text("new_data"), // JSON string
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
 export const insertAnnouncementSchema = createInsertSchema(announcements).omit({ id: true });
 export const insertFacultySchema = createInsertSchema(faculty).omit({ id: true, order: true }).extend({
   photo: z.string().optional(),
@@ -119,6 +132,8 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({ i
   order: z.number().optional().default(0),
 });
 
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({ id: true, timestamp: true });
+
 export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({ id: true, createdAt: true });
 
 export type AdminUser = typeof adminUsers.$inferSelect;
@@ -147,6 +162,9 @@ export type InsertFacility = z.infer<typeof insertFacilitySchema>;
 
 export type Testimonial = typeof testimonials.$inferSelect;
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 
 export interface Period {
   name: string;
