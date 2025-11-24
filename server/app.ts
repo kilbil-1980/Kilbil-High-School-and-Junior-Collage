@@ -7,13 +7,11 @@ import express, {
   NextFunction,
 } from "express";
 import session from "express-session";
-import pg from "pg";
-import pgSession from "connect-pg-simple";
+import MemoryStore from "memorystore";
 
 import { registerRoutes } from "./routes";
 
-const { Pool } = pg;
-const PostgresSessionStore = pgSession(session);
+const MemStore = MemoryStore(session);
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -33,16 +31,12 @@ declare module 'http' {
     rawBody: unknown
   }
 }
-// Configure session middleware
-const sessionStore = new PostgresSessionStore({
-  pool: new Pool({
-    connectionString: process.env.DATABASE_URL,
-  }),
-  tableName: 'session'
-});
 
+// Configure session middleware with in-memory store
 app.use(session({
-  store: sessionStore,
+  store: new MemStore({
+    checkPeriod: 86400000, // prune expired entries every 24h
+  }),
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,

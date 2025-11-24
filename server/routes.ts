@@ -189,7 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       pdfDoc.text(`Submitted Date: ${new Date(admission.submittedAt).toLocaleString()}`);
 
-      archive.append(pdfDoc, { name: 'applicant-details.pdf' });
+      archive.append(pdfDoc as any, { name: 'applicant-details.pdf' });
 
       // Add document files
       const docMap: Record<string, string> = {
