@@ -13,6 +13,7 @@ import { AdminManagement } from "@/components/admin/AdminManagement";
 
 export default function Admin() {
   const [adminRole, setAdminRole] = useState<string | null>(null);
+  const [currentTab, setCurrentTab] = useState("announcements");
 
   useEffect(() => {
     // Get admin role from session (stored after login)
@@ -33,14 +34,17 @@ export default function Admin() {
     checkRole();
   }, []);
 
+  useEffect(() => {
+    // Scroll to top when tab changes
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [currentTab]);
+
   const isMasterAdmin = adminRole === "master-admin";
 
-  const handleTabChange = () => {
-    // Scroll to top when switching tabs
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      document.documentElement.scrollTop = 0;
-    }, 0);
+  const handleTabChange = (value: string) => {
+    setCurrentTab(value);
   };
 
   return (
@@ -58,7 +62,7 @@ export default function Admin() {
           </p>
         </div>
 
-        <Tabs defaultValue="announcements" className="w-full" onValueChange={() => handleTabChange()}>
+        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className={`grid w-full ${isMasterAdmin ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-3 lg:grid-cols-7'} mb-8`}>
             {isMasterAdmin && (
               <TabsTrigger value="management" data-testid="tab-management" className="flex items-center gap-1">
