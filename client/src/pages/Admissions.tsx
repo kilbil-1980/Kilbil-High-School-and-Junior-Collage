@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,10 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
 import { CheckCircle, FileText, Phone, Mail, User, GraduationCap } from "lucide-react";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function Admissions() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.admissions.title,
+      description: pageMetadata.admissions.description,
+      url: window.location.href
+    });
+  }, []);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({

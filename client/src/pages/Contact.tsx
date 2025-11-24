@@ -1,13 +1,21 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function Contact() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.contact.title,
+      description: pageMetadata.contact.description,
+      url: window.location.href
+    });
+  }, []);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",

@@ -1,10 +1,19 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Users, GraduationCap, Heart } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Career } from "@shared/schema";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function Career() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.career.title,
+      description: pageMetadata.career.description,
+      url: window.location.href
+    });
+  }, []);
   const { data: careers } = useQuery<Career[]>({
     queryKey: ["/api/careers"],
   });

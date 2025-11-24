@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +7,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import type { Faculty } from "@shared/schema";
 import defaultAvatar from "@assets/generated_images/default_faculty_avatar.png";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function FacultyPage() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.about_faculty.title,
+      description: pageMetadata.about_faculty.description,
+      url: window.location.href
+    });
+  }, []);
   const { data: facultyList, isLoading } = useQuery<Faculty[]>({
     queryKey: ["/api/faculty"],
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { GalleryImage } from "@shared/schema";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 interface GalleryResponse {
   images: GalleryImage[];
@@ -19,6 +20,14 @@ interface GalleryResponse {
 }
 
 export default function Gallery() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.gallery.title,
+      description: pageMetadata.gallery.description,
+      url: window.location.href
+    });
+  }, []);
+
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [currentPage, setCurrentPage] = useState(1);

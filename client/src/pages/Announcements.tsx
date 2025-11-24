@@ -1,11 +1,20 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Megaphone } from "lucide-react";
 import type { Announcement } from "@shared/schema";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function Announcements() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.announcements.title,
+      description: pageMetadata.announcements.description,
+      url: window.location.href
+    });
+  }, []);
   const { data: announcements, isLoading } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
   });

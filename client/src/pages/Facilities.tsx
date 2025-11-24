@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +7,7 @@ import labImage from "@assets/generated_images/science_laboratory_facility.png";
 import libraryImage from "@assets/generated_images/school_library_facility.png";
 import sportsImage from "@assets/generated_images/sports_ground_facility.png";
 import medicalImage from "@assets/generated_images/medical_room_facility.png";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 const defaultImages: Record<string, string> = {
   "Science Laboratory": labImage,
@@ -15,6 +17,13 @@ const defaultImages: Record<string, string> = {
 };
 
 export default function Facilities() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.facilities.title,
+      description: pageMetadata.facilities.description,
+      url: window.location.href
+    });
+  }, []);
   const { data: facilities, isLoading } = useQuery<Facility[]>({
     queryKey: ["/api/facilities"],
   });

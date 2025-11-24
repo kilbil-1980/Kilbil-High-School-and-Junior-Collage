@@ -1,10 +1,21 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Award, Users, BookOpen, GraduationCap, MapPin, Calendar, Phone, Star } from "lucide-react";
 import heroBanner from "@assets/generated_images/school_building_hero_banner.png";
+import { setSEOMetaTags, setStructuredData, pageMetadata, getSchoolStructuredData } from "@/lib/seo";
 
 export default function Home() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.home.title,
+      description: pageMetadata.home.description,
+      url: window.location.href
+    });
+    setStructuredData(getSchoolStructuredData());
+  }, []);
+
   return (
     <div className="min-h-screen">
       <div 

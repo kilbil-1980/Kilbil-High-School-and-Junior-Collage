@@ -1,11 +1,20 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock } from "lucide-react";
 import type { Timetable as TimetableType, Period } from "@shared/schema";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function Timetable() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.timetable.title,
+      description: pageMetadata.timetable.description,
+      url: window.location.href
+    });
+  }, []);
   const { data: timetables, isLoading } = useQuery<TimetableType[]>({
     queryKey: ["/api/timetables"],
   });

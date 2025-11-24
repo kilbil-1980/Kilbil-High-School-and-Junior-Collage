@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Users, Award, Clock } from "lucide-react";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 interface AcademicLevelProps {
   level: "elementary" | "primary" | "secondary" | "higher-secondary";

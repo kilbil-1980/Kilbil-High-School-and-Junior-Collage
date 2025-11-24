@@ -1,7 +1,17 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function PresidentMessage() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.about_president.title,
+      description: pageMetadata.about_president.description,
+      url: window.location.href
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

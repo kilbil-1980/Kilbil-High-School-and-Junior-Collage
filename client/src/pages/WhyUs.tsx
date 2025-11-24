@@ -1,7 +1,16 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Award, Users, BookOpen, Heart, Trophy, Lightbulb } from "lucide-react";
+import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function WhyUs() {
+  useEffect(() => {
+    setSEOMetaTags({
+      title: pageMetadata.about_why_us.title,
+      description: pageMetadata.about_why_us.description,
+      url: window.location.href
+    });
+  }, []);
   const reasons = [
     {
       icon: Award,
