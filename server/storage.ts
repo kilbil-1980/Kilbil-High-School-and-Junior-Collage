@@ -174,8 +174,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAdminUser(username: string): Promise<AdminUser | undefined> {
-    const [result] = await db.select().from(schema.adminUsers).where(eq(schema.adminUsers.username, username));
-    return result;
+    try {
+      const results = await db.select().from(schema.adminUsers).where(eq(schema.adminUsers.username, username));
+      return results && results.length > 0 ? results[0] : undefined;
+    } catch (error) {
+      console.error("Error getting admin user:", error);
+      return undefined;
+    }
   }
 
   async createAdminUser(user: InsertAdminUser): Promise<AdminUser> {

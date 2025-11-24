@@ -231,14 +231,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, password } = req.body;
       const user = await storage.getAdminUser(username);
       
+      console.log(`[ADMIN LOGIN] Attempt for user: ${username}, Found: ${!!user}, Password match: ${user && user.password === password}`);
+      
       if (user && user.password === password) {
         req.session!.adminLoggedIn = true;
         req.session!.adminUsername = username;
+        console.log(`[ADMIN LOGIN] ✓ Success for user: ${username}`);
         res.json({ success: true });
       } else {
+        console.log(`[ADMIN LOGIN] ✗ Failed for user: ${username}`);
         res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
+      console.error("[ADMIN LOGIN] Error:", error);
       res.status(500).json({ message: "Login failed" });
     }
   });
