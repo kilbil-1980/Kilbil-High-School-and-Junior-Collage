@@ -315,8 +315,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[ADMIN LOGIN] Attempt for user: ${username}, Found: ${!!user}, Password match: ${user && user.password === password}`);
       
       if (user && user.password === password) {
-        req.session!.adminLoggedIn = true;
-        req.session!.adminUsername = username;
+        (req.session as any).adminLoggedIn = true;
+        (req.session as any).adminUsername = username;
         console.log(`[ADMIN LOGIN] ✓ Success for user: ${username}`);
         res.json({ success: true });
       } else {
@@ -330,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/admin/check", async (req, res) => {
-    if (req.session?.adminLoggedIn) {
+    if ((req.session as any)?.adminLoggedIn) {
       res.json({ authenticated: true });
     } else {
       res.status(401).json({ authenticated: false });
@@ -338,8 +338,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/admin/logout", async (req, res) => {
-    req.session!.adminLoggedIn = false;
-    req.session!.adminUsername = undefined;
+    (req.session as any).adminLoggedIn = false;
+    (req.session as any).adminUsername = undefined;
     res.json({ success: true });
   });
 
