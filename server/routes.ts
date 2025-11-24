@@ -173,10 +173,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Disposition', `attachment; filename="admission-${req.params.id}.zip"`);
 
       const archive = archiver('zip', { zlib: { level: 9 } });
+      
+      archive.on('error', (err) => {
+        console.error('Archive error:', err);
+        res.status(500).json({ message: "Failed to create archive" });
+      });
+
       archive.pipe(res);
 
       // Create PDF with applicant details
       const pdfDoc = new PDFDocument();
+      const pdfChunks: Buffer[] = [];
+      
+      pdfDoc.on('data', (chunk: Buffer) => {
+        pdfChunks.push(chunk);
+      });
+
+      pdfDoc.on('end', () => {
+        const pdfBuffer = Buffer.concat(pdfChunks);
+        archive.append(pdfBuffer, { name: 'applicant-details.pdf' });
+
+        // Add document files
+        const docMap: Record<string, string> = {
+          birthCertificate: 'birth-certificate',
+          reportCard: 'report-card',
+          transferCertificate: 'transfer-certificate',
+          photographs: 'photographs',
+          addressProof: 'address-proof',
+          parentIdProof: 'parent-id-proof'
+        };
+
+        for (const [key, filename] of Object.entries(docMap)) {
+          const base64Data = admission[key as keyof typeof admission];
+          if (base64Data && typeof base64Data === 'string') {
+            const buffer = Buffer.from(base64Data, 'base64');
+            archive.append(buffer, { name: `${filename}.bin` });
+          }
+        }
+
+        archive.finalize();
+      });
+
       pdfDoc.fontSize(16).text('Admission Application Details', { underline: true });
       pdfDoc.moveDown();
       pdfDoc.fontSize(12);
@@ -188,28 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         pdfDoc.text(`Last School: ${admission.lastSchool}`);
       }
       pdfDoc.text(`Submitted Date: ${new Date(admission.submittedAt).toLocaleString()}`);
-
-      archive.append(pdfDoc as any, { name: 'applicant-details.pdf' });
-
-      // Add document files
-      const docMap: Record<string, string> = {
-        birthCertificate: 'birth-certificate',
-        reportCard: 'report-card',
-        transferCertificate: 'transfer-certificate',
-        photographs: 'photographs',
-        addressProof: 'address-proof',
-        parentIdProof: 'parent-id-proof'
-      };
-
-      for (const [key, filename] of Object.entries(docMap)) {
-        const base64Data = admission[key as keyof typeof admission];
-        if (base64Data && typeof base64Data === 'string') {
-          const buffer = Buffer.from(base64Data, 'base64');
-          archive.append(buffer, { name: `${filename}.bin` });
-        }
-      }
-
-      archive.finalize();
+      pdfDoc.end();
     } catch (error) {
       console.error("Download error:", error);
       res.status(500).json({ message: "Failed to download documents" });
