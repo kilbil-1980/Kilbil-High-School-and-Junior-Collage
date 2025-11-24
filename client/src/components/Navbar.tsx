@@ -155,15 +155,6 @@ export function Navbar() {
             >
               <Link href="/contact">Contact</Link>
             </Button>
-
-            <Button 
-              variant={isActive("/admin") ? "default" : "outline"} 
-              size="sm"
-              asChild
-              data-testid="button-nav-admin"
-            >
-              <Link href="/admin">Admin</Link>
-            </Button>
           </div>
 
           <Button
@@ -237,9 +228,6 @@ export function Navbar() {
             </Button>
             <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-contact">
               <Link href="/contact">Contact</Link>
-            </Button>
-            <Button variant="default" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admin">
-              <Link href="/admin">Admin</Link>
             </Button>
           </div>
         </div>
