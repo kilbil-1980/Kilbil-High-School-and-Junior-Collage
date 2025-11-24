@@ -1,9 +1,18 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -12,6 +21,7 @@ import type { Testimonial } from "@shared/schema";
 import { Trash2, Loader2, Star } from "lucide-react";
 
 export function AdminTestimonials() {
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const { data: testimonials = [], isLoading } = useQuery<Testimonial[]>({
     queryKey: ["/api/testimonials"],
     staleTime: 0,
@@ -20,6 +30,7 @@ export function AdminTestimonials() {
   const deleteTestimonial = useMutation({
     mutationFn: async (id: string) => apiRequest("DELETE", `/api/testimonials/${id}`),
     onSuccess: () => {
+      setDeleteConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] });
     },
   });
@@ -149,7 +160,7 @@ export function AdminTestimonials() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteTestimonial.mutate(testimonial.id)}
+                        onClick={() => setDeleteConfirm(testimonial.id)}
                         disabled={deleteTestimonial.isPending}
                         data-testid={`button-delete-testimonial-${testimonial.id}`}
                       >
@@ -163,6 +174,25 @@ export function AdminTestimonials() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm !== null} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this testimonial? This action cannot be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && deleteTestimonial.mutate(deleteConfirm)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

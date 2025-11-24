@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2 } from "lucide-react";
@@ -18,6 +26,7 @@ export function AdminFacilities() {
     description: "",
     imageUrl: "",
   });
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const { data: facilities } = useQuery<Facility[]>({
     queryKey: ["/api/facilities"],
@@ -36,6 +45,7 @@ export function AdminFacilities() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/facilities/${id}`, {}),
     onSuccess: () => {
       toast({ title: "Success", description: "Facility removed successfully" });
+      setDeleteConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
     },
   });
@@ -119,7 +129,7 @@ export function AdminFacilities() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => deleteMutation.mutate(facility.id)}
+                      onClick={() => setDeleteConfirm(facility.id)}
                       data-testid={`button-delete-facility-${facility.id}`}
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
@@ -132,6 +142,25 @@ export function AdminFacilities() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm !== null} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this facility? This action cannot be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

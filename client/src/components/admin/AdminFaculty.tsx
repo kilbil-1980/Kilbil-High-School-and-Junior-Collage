@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2 } from "lucide-react";
@@ -21,6 +29,7 @@ export function AdminFaculty() {
     bio: "",
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const { data: facultyList } = useQuery<Faculty[]>({
     queryKey: ["/api/faculty"],
@@ -40,6 +49,7 @@ export function AdminFaculty() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/faculty/${id}`, {}),
     onSuccess: () => {
       toast({ title: "Success", description: "Faculty member removed successfully" });
+      setDeleteConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["/api/faculty"] });
     },
   });
@@ -170,7 +180,7 @@ export function AdminFaculty() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => deleteMutation.mutate(faculty.id)}
+                      onClick={() => setDeleteConfirm(faculty.id)}
                       data-testid={`button-delete-faculty-${faculty.id}`}
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
@@ -183,6 +193,25 @@ export function AdminFaculty() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm !== null} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this faculty member? This action cannot be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

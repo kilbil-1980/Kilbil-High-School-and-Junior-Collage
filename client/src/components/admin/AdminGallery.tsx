@@ -4,6 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2, Image as ImageIcon } from "lucide-react";
@@ -17,6 +25,7 @@ export function AdminGallery() {
     imageUrl: "",
     caption: "",
   });
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const { data: images } = useQuery<GalleryImage[]>({
     queryKey: ["/api/gallery"],
@@ -35,6 +44,7 @@ export function AdminGallery() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/gallery/${id}`, {}),
     onSuccess: () => {
       toast({ title: "Success", description: "Image removed from gallery" });
+      setDeleteConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
     },
   });
@@ -123,7 +133,7 @@ export function AdminGallery() {
                     variant="destructive"
                     size="icon"
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => deleteMutation.mutate(image.id)}
+                    onClick={() => setDeleteConfirm(image.id)}
                     data-testid={`button-delete-gallery-${image.id}`}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -138,6 +148,25 @@ export function AdminGallery() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm !== null} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this image? This action cannot be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

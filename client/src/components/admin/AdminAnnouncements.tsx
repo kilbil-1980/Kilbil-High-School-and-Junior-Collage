@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2, Calendar } from "lucide-react";
@@ -18,6 +26,7 @@ export function AdminAnnouncements() {
     content: "",
     priority: 0,
   });
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const { data: announcements } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
@@ -36,6 +45,7 @@ export function AdminAnnouncements() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/announcements/${id}`, {}),
     onSuccess: () => {
       toast({ title: "Success", description: "Announcement deleted successfully" });
+      setDeleteConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
     },
   });
@@ -121,7 +131,7 @@ export function AdminAnnouncements() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => deleteMutation.mutate(announcement.id)}
+                      onClick={() => setDeleteConfirm(announcement.id)}
                       data-testid={`button-delete-announcement-${announcement.id}`}
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
@@ -138,6 +148,25 @@ export function AdminAnnouncements() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm !== null} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this announcement? This action cannot be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
