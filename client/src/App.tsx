@@ -22,7 +22,6 @@ import Gallery from "@/pages/Gallery";
 import Career from "@/pages/Career";
 import Contact from "@/pages/Contact";
 import Announcements from "@/pages/Announcements";
-import Admin from "@/pages/Admin";
 
 function Router() {
   return (
@@ -56,7 +55,6 @@ function Router() {
       <Route path="/career" component={Career} />
       <Route path="/contact" component={Contact} />
       <Route path="/announcements" component={Announcements} />
-      <Route path="/admin" component={Admin} />
       
       <Route component={NotFound} />
     </Switch>
