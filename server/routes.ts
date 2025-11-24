@@ -2,6 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
+import archiver from "archiver";
+import PDFDocument from "pdfkit";
 import { 
   insertAnnouncementSchema,
   insertFacultySchema,
@@ -132,6 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: req.body.email,
         phone: req.body.phone,
         className: req.body.className,
+        lastSchool: req.body.lastSchool,
         birthCertificate: files.birthCertificate ? files.birthCertificate[0].buffer.toString('base64') : undefined,
         reportCard: files.reportCard ? files.reportCard[0].buffer.toString('base64') : undefined,
         transferCertificate: files.transferCertificate ? files.transferCertificate[0].buffer.toString('base64') : undefined,
@@ -147,6 +150,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Admission error:", error);
       res.status(400).json({ message: error?.message || "Invalid admission data" });
+    }
+  });
+
+  app.delete("/api/admissions/:id", async (req, res) => {
+    try {
+      await storage.deleteAdmission(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete admission" });
+    }
+  });
+
+  app.get("/api/admissions/:id/download", async (req, res) => {
+    try {
+      const admission = await storage.getAdmission(req.params.id);
+      if (!admission) {
+        return res.status(404).json({ message: "Admission not found" });
+      }
+
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename="admission-${req.params.id}.zip"`);
+
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      archive.pipe(res);
+
+      // Create PDF with applicant details
+      const pdfDoc = new PDFDocument();
+      pdfDoc.fontSize(16).text('Admission Application Details', { underline: true });
+      pdfDoc.moveDown();
+      pdfDoc.fontSize(12);
+      pdfDoc.text(`Student Name: ${admission.name}`);
+      pdfDoc.text(`Email: ${admission.email}`);
+      pdfDoc.text(`Phone: ${admission.phone}`);
+      pdfDoc.text(`Class Applying For: ${admission.className}`);
+      if (admission.lastSchool) {
+        pdfDoc.text(`Last School: ${admission.lastSchool}`);
+      }
+      pdfDoc.text(`Submitted Date: ${new Date(admission.submittedAt).toLocaleString()}`);
+
+      archive.append(pdfDoc, { name: 'applicant-details.pdf' });
+
+      // Add document files
+      const docMap: Record<string, string> = {
+        birthCertificate: 'birth-certificate',
+        reportCard: 'report-card',
+        transferCertificate: 'transfer-certificate',
+        photographs: 'photographs',
+        addressProof: 'address-proof',
+        parentIdProof: 'parent-id-proof'
+      };
+
+      for (const [key, filename] of Object.entries(docMap)) {
+        const base64Data = admission[key as keyof typeof admission];
+        if (base64Data && typeof base64Data === 'string') {
+          const buffer = Buffer.from(base64Data, 'base64');
+          archive.append(buffer, { name: `${filename}.bin` });
+        }
+      }
+
+      archive.finalize();
+    } catch (error) {
+      console.error("Download error:", error);
+      res.status(500).json({ message: "Failed to download documents" });
     }
   });
 

@@ -40,6 +40,7 @@ export const admissions = pgTable("admissions", {
   email: text("email").notNull(),
   phone: text("phone").notNull(),
   className: text("class_name").notNull(),
+  lastSchool: text("last_school"),
   birthCertificate: text("birth_certificate"),
   reportCard: text("report_card"),
   transferCertificate: text("transfer_certificate"),
@@ -91,6 +92,7 @@ export const insertFacultySchema = createInsertSchema(faculty).omit({ id: true, 
 });
 export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: true });
 export const insertAdmissionSchema = createInsertSchema(admissions).omit({ id: true }).extend({
+  lastSchool: z.string().optional(),
   birthCertificate: z.string().optional(),
   reportCard: z.string().optional(),
   transferCertificate: z.string().optional(),

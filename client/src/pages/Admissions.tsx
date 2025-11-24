@@ -17,6 +17,7 @@ export default function Admissions() {
     email: "",
     phone: "",
     className: "",
+    lastSchool: "",
   });
   const [files, setFiles] = useState({
     birthCertificate: null as File | null,
@@ -36,7 +37,7 @@ export default function Admissions() {
         title: "Application Submitted!",
         description: "Your admission application has been received. We will contact you soon.",
       });
-      setFormData({ name: "", email: "", phone: "", className: "" });
+      setFormData({ name: "", email: "", phone: "", className: "", lastSchool: "" });
       setFiles({ birthCertificate: null, reportCard: null, transferCertificate: null, photographs: null, addressProof: null, parentIdProof: null });
       queryClient.invalidateQueries({ queryKey: ["/api/admissions"] });
     },
@@ -66,6 +67,7 @@ export default function Admissions() {
     submitData.append("email", formData.email);
     submitData.append("phone", formData.phone);
     submitData.append("className", formData.className);
+    if (formData.lastSchool) submitData.append("lastSchool", formData.lastSchool);
     
     if (files.birthCertificate) submitData.append("birthCertificate", files.birthCertificate);
     if (files.reportCard) submitData.append("reportCard", files.reportCard);
@@ -259,6 +261,22 @@ export default function Admissions() {
                       <SelectItem value="Grade 12">Grade 12</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastSchool">
+                    <span className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4" />
+                      Last School (Optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="lastSchool"
+                    value={formData.lastSchool}
+                    onChange={(e) => setFormData({ ...formData, lastSchool: e.target.value })}
+                    placeholder="Name of previous school"
+                    data-testid="input-last-school"
+                  />
                 </div>
               </div>
 
