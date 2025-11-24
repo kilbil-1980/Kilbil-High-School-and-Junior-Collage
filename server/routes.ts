@@ -367,8 +367,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/gallery", async (req, res) => {
     try {
-      const images = await storage.getGalleryImages();
-      res.json(images);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 12;
+      const category = req.query.category as string || "all";
+      
+      let images = await storage.getGalleryImages();
+      
+      // Filter by category if provided and not "all"
+      if (category && category !== "all") {
+        images = images.filter(img => img.category === category);
+      }
+      
+      // Calculate pagination
+      const total = images.length;
+      const totalPages = Math.ceil(total / limit);
+      const startIndex = (page - 1) * limit;
+      const paginatedImages = images.slice(startIndex, startIndex + limit);
+      
+      res.json({
+        images: paginatedImages,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasMore: page < totalPages
+        }
+      });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch gallery images" });
     }
