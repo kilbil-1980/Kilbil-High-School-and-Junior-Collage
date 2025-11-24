@@ -6,8 +6,14 @@ import express, {
   Response,
   NextFunction,
 } from "express";
+import session from "express-session";
+import pg from "pg";
+import pgSession from "connect-pg-simple";
 
 import { registerRoutes } from "./routes";
+
+const { Pool } = pg;
+const PostgresSessionStore = pgSession(session);
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -27,6 +33,26 @@ declare module 'http' {
     rawBody: unknown
   }
 }
+// Configure session middleware
+const sessionStore = new PostgresSessionStore({
+  pool: new Pool({
+    connectionString: process.env.DATABASE_URL,
+  }),
+  tableName: 'session'
+});
+
+app.use(session({
+  store: sessionStore,
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  }
+}));
+
 app.use(express.json({
   verify: (req, _res, buf) => {
     req.rawBody = buf;
