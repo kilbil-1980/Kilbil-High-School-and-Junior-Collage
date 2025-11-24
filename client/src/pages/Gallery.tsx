@@ -46,11 +46,15 @@ export default function Gallery() {
       const res = await fetch("/api/gallery?limit=1000", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch categories");
       const data = await res.json();
-      return data.images;
+      return data.images || [];
     },
   });
 
-  const categories = ["all", ...(allImages ? [...new Set(allImages.map(img => img.category))] : [])];
+  const categories = ["all"];
+  if (allImages && allImages.length > 0) {
+    const categorySet = new Set(allImages.map(img => img.category));
+    categories.push(...Array.from(categorySet));
+  }
   const images = galleryData?.images || [];
   const pagination = galleryData?.pagination;
 
