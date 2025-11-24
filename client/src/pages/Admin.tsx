@@ -8,6 +8,7 @@ import { AdminTimetables } from "@/components/admin/AdminTimetables";
 import { AdminAdmissions } from "@/components/admin/AdminAdmissions";
 import { AdminGallery } from "@/components/admin/AdminGallery";
 import { AdminFacilities } from "@/components/admin/AdminFacilities";
+import { AdminCareer } from "@/components/admin/AdminCareer";
 
 export default function Admin() {
   return (
@@ -26,13 +27,14 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="announcements" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 mb-8">
             <TabsTrigger value="announcements" data-testid="tab-announcements">Announcements</TabsTrigger>
             <TabsTrigger value="faculty" data-testid="tab-faculty">Faculty</TabsTrigger>
             <TabsTrigger value="timetables" data-testid="tab-timetables">Timetables</TabsTrigger>
             <TabsTrigger value="admissions" data-testid="tab-admissions">Admissions</TabsTrigger>
             <TabsTrigger value="gallery" data-testid="tab-gallery">Gallery</TabsTrigger>
             <TabsTrigger value="facilities" data-testid="tab-facilities">Facilities</TabsTrigger>
+            <TabsTrigger value="career" data-testid="tab-career">Career</TabsTrigger>
           </TabsList>
 
           <TabsContent value="announcements">
@@ -57,6 +59,10 @@ export default function Admin() {
 
           <TabsContent value="facilities">
             <AdminFacilities />
+          </TabsContent>
+
+          <TabsContent value="career">
+            <AdminCareer />
           </TabsContent>
         </Tabs>
       </div>

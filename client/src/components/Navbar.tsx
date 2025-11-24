@@ -1,8 +1,9 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, LogOut, Bell } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,6 +12,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import type { Announcement } from "@shared/schema";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -26,6 +28,13 @@ export function Navbar() {
     },
     refetchInterval: 5000,
   });
+
+  const { data: announcements } = useQuery<Announcement[]>({
+    queryKey: ["/api/announcements"],
+    refetchInterval: 10000,
+  });
+
+  const announcementCount = announcements?.length || 0;
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -176,8 +185,20 @@ export function Navbar() {
               size="sm"
               asChild
               data-testid="button-nav-announcements"
+              className="relative"
             >
-              <Link href="/announcements">Announcements</Link>
+              <Link href="/announcements" className="relative">
+                <Bell className="w-4 h-4" />
+                {announcementCount > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    data-testid="badge-announcement-count"
+                  >
+                    {announcementCount}
+                  </Badge>
+                )}
+              </Link>
             </Button>
 
             {authStatus?.authenticated && (
@@ -276,7 +297,15 @@ export function Navbar() {
               <Link href="/contact">Contact</Link>
             </Button>
             <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-announcements">
-              <Link href="/announcements">Announcements</Link>
+              <Link href="/announcements" className="flex items-center gap-2">
+                <Bell className="w-4 h-4" />
+                Announcements
+                {announcementCount > 0 && (
+                  <Badge variant="destructive" className="ml-auto" data-testid="badge-mobile-announcement-count">
+                    {announcementCount}
+                  </Badge>
+                )}
+              </Link>
             </Button>
 
             {authStatus?.authenticated && (
