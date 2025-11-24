@@ -54,6 +54,16 @@ export const facilities = pgTable("facilities", {
   order: integer("order").notNull().default(0),
 });
 
+export const testimonials = pgTable("testimonials", {
+  id: varchar("id").primaryKey(),
+  studentName: text("student_name").notNull(),
+  studentClass: text("student_class").notNull(),
+  message: text("message").notNull(),
+  rating: integer("rating").notNull().default(5),
+  photo: text("photo"),
+  order: integer("order").notNull().default(0),
+});
+
 export const insertAnnouncementSchema = createInsertSchema(announcements).omit({ id: true });
 export const insertFacultySchema = createInsertSchema(faculty).omit({ id: true, order: true }).extend({
   photo: z.string().optional(),
@@ -69,6 +79,12 @@ export const insertGalleryImageSchema = createInsertSchema(galleryImages).omit({
 });
 export const insertFacilitySchema = createInsertSchema(facilities).omit({ id: true, order: true }).extend({
   imageUrl: z.string().optional(),
+  order: z.number().optional().default(0),
+});
+
+export const insertTestimonialSchema = createInsertSchema(testimonials).omit({ id: true, order: true }).extend({
+  photo: z.string().optional(),
+  rating: z.number().min(1).max(5).optional().default(5),
   order: z.number().optional().default(0),
 });
 
@@ -89,6 +105,9 @@ export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
 
 export type Facility = typeof facilities.$inferSelect;
 export type InsertFacility = z.infer<typeof insertFacilitySchema>;
+
+export type Testimonial = typeof testimonials.$inferSelect;
+export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
 
 export interface Period {
   name: string;

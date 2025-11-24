@@ -8,7 +8,8 @@ import {
   insertTimetableSchema,
   insertAdmissionSchema,
   insertGalleryImageSchema,
-  insertFacilitySchema
+  insertFacilitySchema,
+  insertTestimonialSchema
 } from "@shared/schema";
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -193,6 +194,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete facility" });
+    }
+  });
+
+  app.get("/api/testimonials", async (req, res) => {
+    try {
+      const testimonials = await storage.getTestimonials();
+      res.json(testimonials);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch testimonials" });
+    }
+  });
+
+  app.post("/api/testimonials", async (req, res) => {
+    try {
+      const parsed = insertTestimonialSchema.parse(req.body);
+      const testimonial = await storage.createTestimonial(parsed);
+      res.status(201).json(testimonial);
+    } catch (error: any) {
+      console.error("Testimonial error:", error);
+      res.status(400).json({ message: error?.message || "Invalid testimonial data" });
+    }
+  });
+
+  app.delete("/api/testimonials/:id", async (req, res) => {
+    try {
+      await storage.deleteTestimonial(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete testimonial" });
     }
   });
 

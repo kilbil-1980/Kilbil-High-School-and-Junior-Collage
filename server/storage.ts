@@ -4,7 +4,8 @@ import type {
   Timetable, InsertTimetable,
   Admission, InsertAdmission,
   GalleryImage, InsertGalleryImage,
-  Facility, InsertFacility
+  Facility, InsertFacility,
+  Testimonial, InsertTestimonial
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -31,6 +32,10 @@ export interface IStorage {
   getFacilities(): Promise<Facility[]>;
   createFacility(facility: InsertFacility): Promise<Facility>;
   deleteFacility(id: string): Promise<void>;
+
+  getTestimonials(): Promise<Testimonial[]>;
+  createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
+  deleteTestimonial(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -40,6 +45,7 @@ export class MemStorage implements IStorage {
   private admissions: Map<string, Admission>;
   private galleryImages: Map<string, GalleryImage>;
   private facilities: Map<string, Facility>;
+  private testimonials: Map<string, Testimonial>;
 
   constructor() {
     this.announcements = new Map();
@@ -48,6 +54,7 @@ export class MemStorage implements IStorage {
     this.admissions = new Map();
     this.galleryImages = new Map();
     this.facilities = new Map();
+    this.testimonials = new Map();
 
     this.seedInitialData();
   }
@@ -194,6 +201,39 @@ export class MemStorage implements IStorage {
       order: 4,
     };
     this.facilities.set(facility5.id, facility5);
+
+    const testimonial1: Testimonial = {
+      id: randomUUID(),
+      studentName: "Aisha Sharma",
+      studentClass: "10th B",
+      message: "Kilbil has transformed my educational journey. The teachers are incredibly supportive and the learning environment is nurturing. I've grown not just academically but as a person.",
+      rating: 5,
+      photo: "",
+      order: 0,
+    };
+    this.testimonials.set(testimonial1.id, testimonial1);
+
+    const testimonial2: Testimonial = {
+      id: randomUUID(),
+      studentName: "Raj Patel",
+      studentClass: "12th A",
+      message: "The facilities here are world-class and the faculty members genuinely care about their students. My time at Kilbil has prepared me well for my future.",
+      rating: 5,
+      photo: "",
+      order: 1,
+    };
+    this.testimonials.set(testimonial2.id, testimonial2);
+
+    const testimonial3: Testimonial = {
+      id: randomUUID(),
+      studentName: "Priya Singh",
+      studentClass: "9th C",
+      message: "I love being a part of this school. The activities, sports programs, and academics are all balanced perfectly. My parents are very satisfied with my progress.",
+      rating: 5,
+      photo: "",
+      order: 2,
+    };
+    this.testimonials.set(testimonial3.id, testimonial3);
   }
 
   async getAnnouncements(): Promise<Announcement[]> {
@@ -303,6 +343,24 @@ export class MemStorage implements IStorage {
 
   async deleteFacility(id: string): Promise<void> {
     this.facilities.delete(id);
+  }
+
+  async getTestimonials(): Promise<Testimonial[]> {
+    return Array.from(this.testimonials.values()).sort((a, b) => a.order - b.order);
+  }
+
+  async createTestimonial(insertTestimonial: InsertTestimonial): Promise<Testimonial> {
+    const testimonial: Testimonial = {
+      id: randomUUID(),
+      ...insertTestimonial,
+      order: this.testimonials.size,
+    };
+    this.testimonials.set(testimonial.id, testimonial);
+    return testimonial;
+  }
+
+  async deleteTestimonial(id: string): Promise<void> {
+    this.testimonials.delete(id);
   }
 }
 
