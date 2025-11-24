@@ -29,6 +29,11 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
       });
 
       if (res.ok) {
+        const result = await res.json();
+        // Store the admin role in sessionStorage for use in Admin.tsx
+        if (result.role) {
+          sessionStorage.setItem("adminRole", result.role);
+        }
         toast({ title: "Success", description: "Logged in successfully" });
         onLoginSuccess();
       } else {
@@ -86,7 +91,11 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
               <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
-                <p><strong>Demo credentials:</strong></p>
+                <p><strong>Master Admin:</strong></p>
+                <p>Username: masteradmin</p>
+                <p>Password: masteradmin@kilbil1980</p>
+                <hr className="my-2 border-muted-foreground/30" />
+                <p><strong>Sub Admin:</strong></p>
                 <p>Username: admin</p>
                 <p>Password: kilbil123456</p>
               </div>
