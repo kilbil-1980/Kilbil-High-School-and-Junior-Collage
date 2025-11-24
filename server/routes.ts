@@ -1,9 +1,12 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
 import archiver from "archiver";
 import PDFDocument from "pdfkit";
+import { randomUUID } from "crypto";
+import { db } from "./storage";
+import { auditLogs } from "@shared/schema";
 import { 
   insertAnnouncementSchema,
   insertFacultySchema,
@@ -14,6 +17,27 @@ import {
   insertTestimonialSchema,
   insertCareerSchema
 } from "@shared/schema";
+
+// Helper function to log audit events
+async function logAuditEvent(req: Request, action: string, tableName: string, recordId: string, oldData?: any, newData?: any) {
+  try {
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    await db.insert(auditLogs).values({
+      id: randomUUID(),
+      action,
+      tableName,
+      recordId,
+      adminUsername: (req.session as any)?.username || 'anonymous',
+      ipAddress: typeof ipAddress === 'string' ? ipAddress : ipAddress[0],
+      userAgent: typeof userAgent === 'string' ? userAgent : 'unknown',
+      oldData: oldData ? JSON.stringify(oldData) : null,
+      newData: newData ? JSON.stringify(newData) : null,
+    });
+  } catch (error) {
+    console.error("Failed to log audit event:", error);
+  }
+}
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -36,6 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const parsed = insertAnnouncementSchema.parse(announcementData);
       const announcement = await storage.createAnnouncement(parsed);
+      await logAuditEvent(req, "CREATE", "announcements", announcement.id, null, announcement);
       res.status(201).json(announcement);
     } catch (error: any) {
       console.error("Announcement error:", error);
@@ -45,7 +70,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/announcements/:id", async (req, res) => {
     try {
+      const old = await storage.getAnnouncements().then(a => a.find(x => x.id === req.params.id));
       await storage.deleteAnnouncement(req.params.id);
+      await logAuditEvent(req, "DELETE", "announcements", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete announcement" });
@@ -65,6 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const parsed = insertFacultySchema.parse(req.body);
       const faculty = await storage.createFaculty(parsed);
+      await logAuditEvent(req, "CREATE", "faculty", faculty.id, null, faculty);
       res.status(201).json(faculty);
     } catch (error: any) {
       console.error("Faculty error:", error);
@@ -74,7 +102,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/faculty/:id", async (req, res) => {
     try {
+      const old = await storage.getFaculty().then(f => f.find(x => x.id === req.params.id));
       await storage.deleteFaculty(req.params.id);
+      await logAuditEvent(req, "DELETE", "faculty", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete faculty" });
@@ -155,7 +185,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admissions/:id", async (req, res) => {
     try {
+      const old = await storage.getAdmission(req.params.id);
       await storage.deleteAdmission(req.params.id);
+      await logAuditEvent(req, "DELETE", "admissions", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete admission" });
@@ -164,7 +196,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admissions/clear-all", async (req, res) => {
     try {
+      const all = await storage.getAdmissions();
       await storage.deleteAllAdmissions();
+      for (const admission of all) {
+        await logAuditEvent(req, "DELETE", "admissions", admission.id, admission, null);
+      }
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to clear admissions" });
@@ -328,6 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const parsed = insertGalleryImageSchema.parse(imageData);
       const image = await storage.createGalleryImage(parsed);
+      await logAuditEvent(req, "CREATE", "gallery_images", image.id, null, image);
       res.status(201).json(image);
     } catch (error: any) {
       console.error("Gallery error:", error);
@@ -337,7 +374,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/gallery/:id", async (req, res) => {
     try {
+      const old = await storage.getGalleryImages().then(g => g.find(x => x.id === req.params.id));
       await storage.deleteGalleryImage(req.params.id);
+      await logAuditEvent(req, "DELETE", "gallery_images", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete gallery image" });
@@ -357,6 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const parsed = insertFacilitySchema.parse(req.body);
       const facility = await storage.createFacility(parsed);
+      await logAuditEvent(req, "CREATE", "facilities", facility.id, null, facility);
       res.status(201).json(facility);
     } catch (error: any) {
       console.error("Facility error:", error);
@@ -366,7 +406,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/facilities/:id", async (req, res) => {
     try {
+      const old = await storage.getFacilities().then(f => f.find(x => x.id === req.params.id));
       await storage.deleteFacility(req.params.id);
+      await logAuditEvent(req, "DELETE", "facilities", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete facility" });
@@ -386,6 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const parsed = insertTestimonialSchema.parse(req.body);
       const testimonial = await storage.createTestimonial(parsed);
+      await logAuditEvent(req, "CREATE", "testimonials", testimonial.id, null, testimonial);
       res.status(201).json(testimonial);
     } catch (error: any) {
       console.error("Testimonial error:", error);
@@ -395,7 +438,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/testimonials/:id", async (req, res) => {
     try {
+      const old = await storage.getTestimonials().then(t => t.find(x => x.id === req.params.id));
       await storage.deleteTestimonial(req.params.id);
+      await logAuditEvent(req, "DELETE", "testimonials", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete testimonial" });
@@ -451,6 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const parsed = insertCareerSchema.parse(req.body);
       const career = await storage.createCareer(parsed);
+      await logAuditEvent(req, "CREATE", "careers", career.id, null, career);
       res.status(201).json(career);
     } catch (error: any) {
       console.error("Career error:", error);
@@ -460,7 +506,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/careers/:id", async (req, res) => {
     try {
+      const old = await storage.getCareers().then(c => c.find(x => x.id === req.params.id));
       await storage.deleteCareer(req.params.id);
+      await logAuditEvent(req, "DELETE", "careers", req.params.id, old, null);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete career" });

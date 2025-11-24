@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2, Briefcase } from "lucide-react";
@@ -19,6 +27,7 @@ export function AdminCareer() {
     qualifications: "",
     experience: "",
   });
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const { data: careers } = useQuery<Career[]>({
     queryKey: ["/api/careers"],
@@ -37,6 +46,7 @@ export function AdminCareer() {
     mutationFn: (id: string) => apiRequest("DELETE", `/api/careers/${id}`, {}),
     onSuccess: () => {
       toast({ title: "Success", description: "Career opening removed successfully" });
+      setDeleteConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["/api/careers"] });
     },
   });
@@ -134,7 +144,7 @@ export function AdminCareer() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => deleteMutation.mutate(career.id)}
+                      onClick={() => setDeleteConfirm(career.id)}
                       data-testid={`button-delete-career-${career.id}`}
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
@@ -157,6 +167,25 @@ export function AdminCareer() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm !== null} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this career opening? This action cannot be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
