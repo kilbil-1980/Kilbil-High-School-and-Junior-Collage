@@ -54,73 +54,82 @@ export default function Timetable() {
         </div>
 
         {/* Timeline/Flow Layout - Responsive Grid */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* First Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
-            {periods.slice(0, 4).map((period, index) => (
-              <div key={index} className="flex flex-col items-center" data-testid={`period-${index}`}>
-                <div
-                  className={`w-full p-4 rounded-lg border-2 text-center transition-all hover-elevate ${
-                    period.isBreak ?? false
-                      ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 dark:border-yellow-600"
-                      : "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600"
-                  }`}
-                >
-                  <div className="font-bold text-sm text-slate-900 dark:text-white mb-1">
-                    {index === 0 ? "1st Period" : index === 1 ? "2nd Period" : index === 2 ? "Break" : "3rd Period"}
-                  </div>
-                  <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">{period.time}</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">{period.name}</div>
-                </div>
-
-                {/* Arrow Down to Next Row */}
-                {index < 3 && (
-                  <div className="hidden lg:block h-6 text-slate-400 dark:text-slate-500 text-xl font-bold mt-2">↓</div>
-                )}
-
-                {/* Arrow Right for Mobile/Tablet */}
-                {index < 3 && (
-                  <div className="lg:hidden w-6 text-slate-400 dark:text-slate-500 text-xl font-bold mt-2 transform rotate-90">↓</div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Second Row */}
-          {periods.length > 4 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
-              {periods.slice(4, 8).map((period, index) => (
-                <div key={index + 4} className="flex flex-col items-center" data-testid={`period-${index + 4}`}>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-wrap justify-center items-center gap-2 lg:gap-3">
+              {periods.slice(0, 4).map((period, index) => (
+                <div key={index} data-testid={`period-${index}`}>
                   <div
-                    className={`w-full p-4 rounded-lg border-2 text-center transition-all hover-elevate ${
+                    className={`w-32 sm:w-40 p-4 rounded-lg border-2 text-center transition-all hover-elevate ${
                       period.isBreak ?? false
                         ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 dark:border-yellow-600"
                         : "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600"
                     }`}
                   >
                     <div className="font-bold text-sm text-slate-900 dark:text-white mb-1">
-                      {index + 4 === 4 ? "Lunch" : index + 4 === 5 ? "5th Period" : index + 4 === 6 ? "6th Period" : "4th Period"}
+                      {index === 0 ? "1st Period" : index === 1 ? "2nd Period" : index === 2 ? "Break" : "3rd Period"}
                     </div>
                     <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">{period.time}</div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">{period.name}</div>
                   </div>
-
-                  {/* Arrow Down */}
-                  {index + 4 < periods.length - 1 && (
-                    <div className="hidden lg:block h-6 text-slate-400 dark:text-slate-500 text-xl font-bold mt-2">↓</div>
+                  {/* Right arrow between items */}
+                  {index < 3 && (
+                    <div className="hidden lg:inline-block mx-2 text-slate-400 dark:text-slate-500 text-2xl font-bold">→</div>
                   )}
                 </div>
               ))}
+            </div>
+            {/* Down arrow to next row */}
+            {periods.length > 4 && (
+              <div className="text-center">
+                <div className="inline-block text-slate-400 dark:text-slate-500 text-2xl font-bold">↓</div>
+              </div>
+            )}
+          </div>
+
+          {/* Second Row */}
+          {periods.length > 4 && (
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-wrap justify-center items-center gap-2 lg:gap-3">
+                {periods.slice(4, 8).map((period, index) => (
+                  <div key={index + 4} data-testid={`period-${index + 4}`}>
+                    <div
+                      className={`w-32 sm:w-40 p-4 rounded-lg border-2 text-center transition-all hover-elevate ${
+                        period.isBreak ?? false
+                          ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 dark:border-yellow-600"
+                          : "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600"
+                      }`}
+                    >
+                      <div className="font-bold text-sm text-slate-900 dark:text-white mb-1">
+                        {index + 4 === 4 ? "Lunch" : index + 4 === 5 ? "5th Period" : index + 4 === 6 ? "6th Period" : "4th Period"}
+                      </div>
+                      <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">{period.time}</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">{period.name}</div>
+                    </div>
+                    {/* Right arrow between items */}
+                    {index < 3 && (
+                      <div className="hidden lg:inline-block mx-2 text-slate-400 dark:text-slate-500 text-2xl font-bold">→</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {/* Down arrow to next row */}
+              {periods.length > 8 && (
+                <div className="text-center">
+                  <div className="inline-block text-slate-400 dark:text-slate-500 text-2xl font-bold">↓</div>
+                </div>
+              )}
             </div>
           )}
 
           {/* Third Row */}
           {periods.length > 8 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+            <div className="flex flex-wrap justify-center items-center gap-2 lg:gap-3">
               {periods.slice(8).map((period, index) => (
-                <div key={index + 8} className="flex flex-col items-center" data-testid={`period-${index + 8}`}>
+                <div key={index + 8} data-testid={`period-${index + 8}`}>
                   <div
-                    className={`w-full p-4 rounded-lg border-2 text-center transition-all hover-elevate ${
+                    className={`w-32 sm:w-40 p-4 rounded-lg border-2 text-center transition-all hover-elevate ${
                       period.isBreak ?? false
                         ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 dark:border-yellow-600"
                         : "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600"
@@ -132,6 +141,10 @@ export default function Timetable() {
                     <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">{period.time}</div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">{period.name}</div>
                   </div>
+                  {/* Right arrow between items */}
+                  {index < periods.slice(8).length - 1 && (
+                    <div className="hidden lg:inline-block mx-2 text-slate-400 dark:text-slate-500 text-2xl font-bold">→</div>
+                  )}
                 </div>
               ))}
             </div>
