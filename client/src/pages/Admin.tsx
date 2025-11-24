@@ -63,21 +63,23 @@ export default function Admin() {
         </div>
 
         <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`grid w-full ${isMasterAdmin ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-3 lg:grid-cols-7'} mb-8`}>
+          <div className="w-full overflow-x-auto mb-8">
+            <TabsList className={`inline-flex w-full min-w-max ${isMasterAdmin ? 'gap-1 sm:gap-0' : 'gap-1 sm:gap-0'}`}>
             {isMasterAdmin && (
-              <TabsTrigger value="management" data-testid="tab-management" className="flex items-center gap-1">
+              <TabsTrigger value="management" data-testid="tab-management" className="flex items-center gap-1 text-xs sm:text-sm whitespace-nowrap">
                 <Lock className="w-3 h-3" />
-                <span className="hidden sm:inline">Users</span>
+                <span>Users</span>
               </TabsTrigger>
             )}
-            <TabsTrigger value="announcements" data-testid="tab-announcements">Announcements</TabsTrigger>
-            <TabsTrigger value="faculty" data-testid="tab-faculty">Faculty</TabsTrigger>
-            <TabsTrigger value="timetables" data-testid="tab-timetables">Timetables</TabsTrigger>
-            <TabsTrigger value="admissions" data-testid="tab-admissions">Admissions</TabsTrigger>
-            <TabsTrigger value="gallery" data-testid="tab-gallery">Gallery</TabsTrigger>
-            <TabsTrigger value="facilities" data-testid="tab-facilities">Facilities</TabsTrigger>
-            <TabsTrigger value="career" data-testid="tab-career">Career</TabsTrigger>
-          </TabsList>
+            <TabsTrigger value="announcements" data-testid="tab-announcements" className="text-xs sm:text-sm whitespace-nowrap">Announce</TabsTrigger>
+            <TabsTrigger value="faculty" data-testid="tab-faculty" className="text-xs sm:text-sm whitespace-nowrap">Faculty</TabsTrigger>
+            <TabsTrigger value="timetables" data-testid="tab-timetables" className="text-xs sm:text-sm whitespace-nowrap">Timetable</TabsTrigger>
+            <TabsTrigger value="admissions" data-testid="tab-admissions" className="text-xs sm:text-sm whitespace-nowrap">Admissions</TabsTrigger>
+            <TabsTrigger value="gallery" data-testid="tab-gallery" className="text-xs sm:text-sm whitespace-nowrap">Gallery</TabsTrigger>
+            <TabsTrigger value="facilities" data-testid="tab-facilities" className="text-xs sm:text-sm whitespace-nowrap">Facility</TabsTrigger>
+            <TabsTrigger value="career" data-testid="tab-career" className="text-xs sm:text-sm whitespace-nowrap">Career</TabsTrigger>
+            </TabsList>
+          </div>
 
           {isMasterAdmin && (
             <TabsContent value="management">

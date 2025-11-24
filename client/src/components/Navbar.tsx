@@ -47,13 +47,13 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover-elevate active-elevate-2 px-2 sm:px-3 py-2 rounded-md" data-testid="link-home">
-            <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-foreground font-bold text-sm sm:text-lg">K</span>
+          <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3 hover-elevate active-elevate-2 px-1.5 sm:px-3 py-2 rounded-md min-w-0" data-testid="link-home">
+            <div className="w-7 sm:w-10 h-7 sm:h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+              <span className="text-primary-foreground font-bold text-xs sm:text-lg">K</span>
             </div>
-            <div className="hidden xs:block">
-              <div className="font-bold text-foreground text-xs sm:text-sm lg:text-base leading-tight">Kilbil High School</div>
-              <div className="text-xs text-muted-foreground leading-tight">& Junior Collage</div>
+            <div className="flex flex-col min-w-0">
+              <div className="font-bold text-foreground text-xs leading-tight truncate">Kilbil High School</div>
+              <div className="text-xs text-muted-foreground leading-tight truncate">& Junior Collage</div>
             </div>
           </Link>
 
