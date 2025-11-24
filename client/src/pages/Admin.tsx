@@ -35,6 +35,11 @@ export default function Admin() {
 
   const isMasterAdmin = adminRole === "master-admin";
 
+  const handleTabChange = () => {
+    // Scroll to top when switching tabs
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-background py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,7 +55,7 @@ export default function Admin() {
           </p>
         </div>
 
-        <Tabs defaultValue="announcements" className="w-full">
+        <Tabs defaultValue="announcements" className="w-full" onValueChange={handleTabChange}>
           <TabsList className={`grid w-full ${isMasterAdmin ? 'grid-cols-4 lg:grid-cols-8' : 'grid-cols-3 lg:grid-cols-7'} mb-8`}>
             {isMasterAdmin && (
               <TabsTrigger value="management" data-testid="tab-management" className="flex items-center gap-1">

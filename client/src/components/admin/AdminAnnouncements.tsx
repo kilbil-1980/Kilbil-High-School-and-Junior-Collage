@@ -127,7 +127,7 @@ export function AdminAnnouncements() {
               {announcements.map((announcement) => (
                 <div key={announcement.id} className="border rounded-md p-4" data-testid={`announcement-${announcement.id}`}>
                   <div className="flex justify-between items-start gap-3 mb-2">
-                    <h4 className="font-semibold">{announcement.title}</h4>
+                    <h4 className="font-semibold break-words">{announcement.title}</h4>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -137,7 +137,7 @@ export function AdminAnnouncements() {
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-2">{announcement.content}</p>
+                  <p className="text-sm text-muted-foreground mb-2 break-words max-h-32 overflow-y-auto">{announcement.content}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Calendar className="w-3 h-3" />
                     {new Date(announcement.date).toLocaleDateString()}
