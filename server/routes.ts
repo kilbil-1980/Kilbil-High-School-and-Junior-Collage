@@ -9,7 +9,8 @@ import {
   insertAdmissionSchema,
   insertGalleryImageSchema,
   insertFacilitySchema,
-  insertTestimonialSchema
+  insertTestimonialSchema,
+  insertCareerSchema
 } from "@shared/schema";
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -114,15 +115,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admissions", upload.single('document'), async (req, res) => {
+  app.post("/api/admissions", upload.fields([
+    { name: 'birthCertificate', maxCount: 1 },
+    { name: 'reportCard', maxCount: 1 },
+    { name: 'transferCertificate', maxCount: 1 },
+    { name: 'photographs', maxCount: 1 },
+    { name: 'addressProof', maxCount: 1 },
+    { name: 'parentIdProof', maxCount: 1 }
+  ]), async (req, res) => {
     try {
+      const files = req.files as any || {};
       const admissionData = {
         name: req.body.name,
         email: req.body.email,
         phone: req.body.phone,
         className: req.body.className,
-        documentName: req.file?.originalname,
-        documentData: req.file ? req.file.buffer.toString('base64') : undefined,
+        birthCertificate: files.birthCertificate ? files.birthCertificate[0].buffer.toString('base64') : undefined,
+        reportCard: files.reportCard ? files.reportCard[0].buffer.toString('base64') : undefined,
+        transferCertificate: files.transferCertificate ? files.transferCertificate[0].buffer.toString('base64') : undefined,
+        photographs: files.photographs ? files.photographs[0].buffer.toString('base64') : undefined,
+        addressProof: files.addressProof ? files.addressProof[0].buffer.toString('base64') : undefined,
+        parentIdProof: files.parentIdProof ? files.parentIdProof[0].buffer.toString('base64') : undefined,
         submittedAt: new Date(),
       };
 
@@ -260,6 +273,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     req.session!.adminLoggedIn = false;
     req.session!.adminUsername = undefined;
     res.json({ success: true });
+  });
+
+  app.get("/api/careers", async (req, res) => {
+    try {
+      const careers = await storage.getCareers();
+      res.json(careers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch careers" });
+    }
+  });
+
+  app.post("/api/careers", async (req, res) => {
+    try {
+      const parsed = insertCareerSchema.parse(req.body);
+      const career = await storage.createCareer(parsed);
+      res.status(201).json(career);
+    } catch (error: any) {
+      console.error("Career error:", error);
+      res.status(400).json({ message: error?.message || "Invalid career data" });
+    }
+  });
+
+  app.delete("/api/careers/:id", async (req, res) => {
+    try {
+      await storage.deleteCareer(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete career" });
+    }
   });
 
   const httpServer = createServer(app);

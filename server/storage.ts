@@ -11,6 +11,7 @@ import type {
   GalleryImage, InsertGalleryImage,
   Facility, InsertFacility,
   Testimonial, InsertTestimonial,
+  Career, InsertCareer,
   AdminUser, InsertAdminUser
 } from "@shared/schema";
 import * as schema from "@shared/schema";
@@ -49,6 +50,10 @@ export interface IStorage {
   getTestimonials(): Promise<Testimonial[]>;
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
   deleteTestimonial(id: string): Promise<void>;
+
+  getCareers(): Promise<Career[]>;
+  createCareer(career: InsertCareer): Promise<Career>;
+  deleteCareer(id: string): Promise<void>;
 
   getAdminUser(username: string): Promise<AdminUser | undefined>;
   createAdminUser(user: InsertAdminUser): Promise<AdminUser>;
@@ -171,6 +176,24 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTestimonial(id: string): Promise<void> {
     await db.delete(schema.testimonials).where(eq(schema.testimonials.id, id));
+  }
+
+  async getCareers(): Promise<Career[]> {
+    const results = await db.select().from(schema.careers).orderBy(db.desc(schema.careers.createdAt));
+    return results;
+  }
+
+  async createCareer(career: InsertCareer): Promise<Career> {
+    const [result] = await db.insert(schema.careers).values({
+      id: randomUUID(),
+      ...career,
+      createdAt: new Date(),
+    }).returning();
+    return result;
+  }
+
+  async deleteCareer(id: string): Promise<void> {
+    await db.delete(schema.careers).where(eq(schema.careers.id, id));
   }
 
   async getAdminUser(username: string): Promise<AdminUser | undefined> {

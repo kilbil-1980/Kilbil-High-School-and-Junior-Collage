@@ -40,9 +40,22 @@ export const admissions = pgTable("admissions", {
   email: text("email").notNull(),
   phone: text("phone").notNull(),
   className: text("class_name").notNull(),
-  documentName: text("document_name"),
-  documentData: text("document_data"),
+  birthCertificate: text("birth_certificate"),
+  reportCard: text("report_card"),
+  transferCertificate: text("transfer_certificate"),
+  photographs: text("photographs"),
+  addressProof: text("address_proof"),
+  parentIdProof: text("parent_id_proof"),
   submittedAt: timestamp("submitted_at").notNull(),
+});
+
+export const careers = pgTable("careers", {
+  id: varchar("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  qualifications: text("qualifications"),
+  experience: text("experience"),
+  createdAt: timestamp("created_at").notNull(),
 });
 
 export const galleryImages = pgTable("gallery_images", {
@@ -78,8 +91,17 @@ export const insertFacultySchema = createInsertSchema(faculty).omit({ id: true, 
 });
 export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: true });
 export const insertAdmissionSchema = createInsertSchema(admissions).omit({ id: true }).extend({
-  documentName: z.string().optional(),
-  documentData: z.string().optional(),
+  birthCertificate: z.string().optional(),
+  reportCard: z.string().optional(),
+  transferCertificate: z.string().optional(),
+  photographs: z.string().optional(),
+  addressProof: z.string().optional(),
+  parentIdProof: z.string().optional(),
+});
+
+export const insertCareerSchema = createInsertSchema(careers).omit({ id: true, createdAt: true }).extend({
+  qualifications: z.string().optional(),
+  experience: z.string().optional(),
 });
 export const insertGalleryImageSchema = createInsertSchema(galleryImages).omit({ id: true }).extend({
   caption: z.string().optional(),
@@ -111,6 +133,9 @@ export type InsertTimetable = z.infer<typeof insertTimetableSchema>;
 
 export type Admission = typeof admissions.$inferSelect;
 export type InsertAdmission = z.infer<typeof insertAdmissionSchema>;
+
+export type Career = typeof careers.$inferSelect;
+export type InsertCareer = z.infer<typeof insertCareerSchema>;
 
 export type GalleryImage = typeof galleryImages.$inferSelect;
 export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
