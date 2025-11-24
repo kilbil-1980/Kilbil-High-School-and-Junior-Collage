@@ -24,12 +24,14 @@ async function logAuditEvent(req: Request, action: string, tableName: string, re
   try {
     const ipAddress = req.ip || req.headers['x-forwarded-for'] || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
+    const adminUsername = (req.session as any)?.adminUsername || 'anonymous';
+    console.log(`[AUDIT LOG] Action: ${action}, Table: ${tableName}, Admin: ${adminUsername}, Record: ${recordId}`);
     await db.insert(auditLogs).values({
       id: randomUUID(),
       action,
       tableName,
       recordId,
-      adminUsername: (req.session as any)?.username || 'anonymous',
+      adminUsername,
       ipAddress: typeof ipAddress === 'string' ? ipAddress : ipAddress[0],
       userAgent: typeof userAgent === 'string' ? userAgent : 'unknown',
       oldData: oldData ? JSON.stringify(oldData) : null,
