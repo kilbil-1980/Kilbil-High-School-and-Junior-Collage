@@ -5,6 +5,7 @@ import multer from "multer";
 import archiver from "archiver";
 import PDFDocument from "pdfkit";
 import { randomUUID } from "crypto";
+import bcrypt from "bcrypt";
 import { db } from "./storage";
 import { auditLogs } from "@shared/schema";
 import { 
@@ -452,20 +453,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, password } = req.body;
       const user = await storage.getAdminUser(username);
       
-      console.log(`[ADMIN LOGIN] Attempt for user: ${username}, Found: ${!!user}, Password match: ${user && user.password === password}`);
+      if (!user) {
+        console.log(`[ADMIN LOGIN] ✗ Failed for user: ${username} - user not found`);
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const passwordMatch = await bcrypt.compare(password, user.password);
       
-      if (user && user.password === password) {
+      if (passwordMatch) {
         (req.session as any).adminLoggedIn = true;
         (req.session as any).adminUsername = username;
-        console.log(`[ADMIN LOGIN] ✓ Success for user: ${username}`);
-        res.json({ success: true });
+        (req.session as any).adminRole = user.role;
+        console.log(`[ADMIN LOGIN] ✓ Success for user: ${username} (${user.role})`);
+        res.json({ success: true, role: user.role });
       } else {
-        console.log(`[ADMIN LOGIN] ✗ Failed for user: ${username}`);
+        console.log(`[ADMIN LOGIN] ✗ Failed for user: ${username} - wrong password`);
         res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
       console.error("[ADMIN LOGIN] Error:", error);
       res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.get("/api/admin/all-users", async (req, res) => {
+    try {
+      if ((req.session as any)?.adminRole !== "master-admin") {
+        return res.status(403).json({ message: "Only master admins can view this" });
+      }
+      const users = await storage.getAllAdminUsers();
+      const sanitized = users.map(u => ({ id: u.id, username: u.username, role: u.role, createdAt: u.createdAt }));
+      res.json(sanitized);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/admin/create-user", async (req, res) => {
+    try {
+      if ((req.session as any)?.adminRole !== "master-admin") {
+        return res.status(403).json({ message: "Only master admins can create users" });
+      }
+      const { username, password, role } = req.body;
+      if (!username || !password || !role) {
+        return res.status(400).json({ message: "Username, password, and role are required" });
+      }
+      const user = await storage.createAdminUser({ username, password, role });
+      await logAuditEvent(req, "CREATE", "admin_users", username, null, { username, role });
+      res.status(201).json({ username: user.username, role: user.role });
+    } catch (error: any) {
+      console.error("Create admin error:", error);
+      res.status(400).json({ message: error?.message || "Failed to create user" });
+    }
+  });
+
+  app.delete("/api/admin/user/:username", async (req, res) => {
+    try {
+      if ((req.session as any)?.adminRole !== "master-admin") {
+        return res.status(403).json({ message: "Only master admins can delete users" });
+      }
+      const old = await storage.getAdminUser(req.params.username);
+      await storage.deleteAdminUser(req.params.username);
+      await logAuditEvent(req, "DELETE", "admin_users", req.params.username, { username: old?.username, role: old?.role }, null);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
+  app.patch("/api/admin/user/:username", async (req, res) => {
+    try {
+      if ((req.session as any)?.adminRole !== "master-admin") {
+        return res.status(403).json({ message: "Only master admins can update users" });
+      }
+      const { password, role } = req.body;
+      const old = await storage.getAdminUser(req.params.username);
+      const updates: any = {};
+      if (password) updates.password = password;
+      if (role) updates.role = role;
+      const user = await storage.updateAdminUser(req.params.username, updates);
+      await logAuditEvent(req, "UPDATE", "admin_users", req.params.username, { username: old?.username, role: old?.role }, { username: user.username, role: user.role });
+      res.json({ username: user.username, role: user.role });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update user" });
     }
   });
 

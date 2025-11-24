@@ -6,6 +6,7 @@ export const adminUsers = pgTable("admin_users", {
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 255 }).notNull().unique(),
   password: text("password").notNull(),
+  role: varchar("role", { length: 50 }).notNull().default("sub-admin"), // master-admin or sub-admin
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

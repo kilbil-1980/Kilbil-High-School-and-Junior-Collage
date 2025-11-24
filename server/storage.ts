@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import { eq, desc } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 const { Pool } = pg;
 import type { 
@@ -60,6 +61,9 @@ export interface IStorage {
 
   getAdminUser(username: string): Promise<AdminUser | undefined>;
   createAdminUser(user: InsertAdminUser): Promise<AdminUser>;
+  getAllAdminUsers(): Promise<AdminUser[]>;
+  deleteAdminUser(username: string): Promise<void>;
+  updateAdminUser(username: string, user: Partial<InsertAdminUser>): Promise<AdminUser>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -232,8 +236,35 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getAllAdminUsers(): Promise<AdminUser[]> {
+    try {
+      const results = await db.select().from(schema.adminUsers);
+      return results;
+    } catch (error) {
+      console.error("Error getting all admin users:", error);
+      return [];
+    }
+  }
+
   async createAdminUser(user: InsertAdminUser): Promise<AdminUser> {
-    const [result] = await db.insert(schema.adminUsers).values(user).returning();
+    const hashedPassword = await bcrypt.hash(user.password, 9);
+    const [result] = await db.insert(schema.adminUsers).values({
+      ...user,
+      password: hashedPassword,
+    }).returning();
+    return result;
+  }
+
+  async deleteAdminUser(username: string): Promise<void> {
+    await db.delete(schema.adminUsers).where(eq(schema.adminUsers.username, username));
+  }
+
+  async updateAdminUser(username: string, updates: Partial<InsertAdminUser>): Promise<AdminUser> {
+    const updateData: any = { ...updates };
+    if (updates.password) {
+      updateData.password = await bcrypt.hash(updates.password, 9);
+    }
+    const [result] = await db.update(schema.adminUsers).set(updateData).where(eq(schema.adminUsers.username, username)).returning();
     return result;
   }
 }
