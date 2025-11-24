@@ -1,0 +1,266 @@
+**"Create a fully responsive, photogenic, multi-page React website for Kilbil High School & Junior Collage (Pimple Gurav, Pune).
+The design must be humanized, warm, child-friendly, and school-centric. Use custom soft color palettes (avoid default AI colors).
+Use multiple background images and apply a global <body> background image.
+Use banners, images, icons, and illustrated elements to make the website look premium and emotional.
+
+Build the entire frontend and CMS structure using:
+✔ React + React Router
+✔ Reusable components
+✔ Dynamic data mapped from mock JSON or mock APIs
+✔ Clean folder structure
+✔ Modern, aesthetic UI similar to raika.school style
+
+📌 Website Navigation Structure (Final)
+Main Pages
+
+Home
+
+About Us
+
+President’s Message
+
+Director’s Message
+
+Principal’s Message
+
+Why Us
+
+Faculties (dynamic — data from admin panel)
+
+Academics
+
+Elementary
+
+Primary
+
+Secondary
+
+Higher Secondary
+
+Admissions
+
+Facilities
+
+Gallery
+
+Career
+
+Contact
+
+Announcements (all announcements page)
+
+🏫 School Data to Use
+
+Name: Kilbil High School & Junior Collage
+Address: Survey No - 77, Near Shrushti Hotel, Shrusti Chowk, Pimple Gurav - 411061
+Google Maps: https://share.google/4CCBREOvqRtQqayX2
+
+Contact: 08128352815
+School Code: 27251902803
+Established: 1980
+Rating: 4.1 (31 reviews)
+Students: Boys 613, Girls 510
+Medium: English
+Curriculum: State Board
+Type: Co-Ed
+Management: Private Unaided
+Classrooms: 29
+Facilities: Playground, Book Bank, Medical Support
+
+📢 Announcements System
+
+Admin can add announcements
+
+Show latest announcement under navbar as scrolling ticker
+
+A full Announcements Page listing all announcements
+
+Dynamic: Admin controlled
+
+👨‍🏫 About → Faculties (Dynamic)
+
+Admin adds:
+
+Faculty name
+
+Qualification
+
+Experience
+
+Photo
+
+Subject taught
+
+Short bio
+
+End User sees:
+
+Beautiful faculty directory under About page
+
+Clicking a faculty card opens a full faculty profile
+
+🕒 Dynamic Timetable (VERY IMPORTANT)
+
+Admin can create 3 timetable categories:
+
+1. Morning Batch (School)
+2. Afternoon Batch (School)
+3. Junior College
+
+Each timetable includes:
+
+Period names
+
+Times
+
+Breaks
+
+Lunch
+
+Special periods
+
+Flow design similar to the provided screenshot (/mnt/data/Screenshot_2025-11-24_16_55_39.png)
+
+End user sees:
+
+Clean, illustrated timetable section
+
+Dynamic rendering based on admin input
+
+📝 Admissions Page
+
+Contextual information
+
+Upload documents (name, email, phone, class, file upload)
+
+Admin can view all applications
+
+🖼 Gallery
+
+Admin can:
+
+Upload images
+
+Create categories
+
+Delete/update images
+End user sees:
+
+Multi-category grid gallery
+
+Lightbox viewer
+
+🏫 Facilities Page
+
+Show:
+
+Labs
+
+Library
+
+Sports ground
+
+Book bank
+
+Medical room
+Each with images + descriptions
+
+🔐 Admin Dashboard (Website Management)
+
+Admin panel is NOT for admin login — it is for managing website content.
+
+Admin can manage:
+
+Announcements
+
+Admissions applications
+
+Faculty creation/deletion/editing
+
+Timetables for all batches
+
+Gallery / images
+
+Home page banners
+
+Facilities content
+
+About page content
+
+Use JSON or mock API routes (Admin → modifies → End User sees updated data).
+
+🏠 Home Page Requirements
+
+Full-width hero banner with background image
+
+Scrolling announcement bar
+
+Quick links (Academics, Admissions, Gallery, Contact)
+
+Highlights (Est. 1980, 4.1 rating, students count, etc.)
+
+Principal message preview with “Read More”
+
+Testimonials (optional)
+
+Embedded map
+
+Footer with working hours and school info
+
+🖌 UI/UX Design Requirements
+
+Use meaningful images on all pages
+
+Unique color palette (creamy white, soft maroon, pastel green, warm gray)
+
+Rounded cards, soft shadows, glassmorphism touches
+
+Smooth animations
+
+Add background images to body and section-level wrappers
+
+Fully mobile-responsive
+
+Proper spacing & alignment
+
+Sticky navbar
+
+🧩 Technical Requirements
+
+React functional components
+
+React Router
+
+State management with simple hooks
+
+Mock API structure for Admin mode
+
+Dynamic rendering of announcements, timetable, faculties, gallery
+
+Reusable components (Navbar, Footer, Announcement Bar, Card, SectionHeader, etc.)
+
+Clean folder structure:
+
+/components
+
+/pages
+
+/admin
+
+/assets
+
+/data
+
+🎯 Final Output
+
+Generate:
+✔ Full React codebase
+✔ All frontend pages
+✔ Admin portal pages
+✔ Dynamic timetable system
+✔ Dynamic faculty system
+✔ Dynamic announcement ticker
+✔ Photogenic UI with background images
+✔ Completely responsive and production-ready
+
+Build the complete project now."**
