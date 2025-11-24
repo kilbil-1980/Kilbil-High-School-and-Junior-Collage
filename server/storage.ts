@@ -35,6 +35,7 @@ export interface IStorage {
 
   getTimetables(): Promise<Timetable[]>;
   createTimetable(timetable: InsertTimetable): Promise<Timetable>;
+  updateTimetable(id: string, timetable: InsertTimetable): Promise<Timetable>;
   deleteTimetable(id: string): Promise<void>;
 
   getAdmissions(): Promise<Admission[]>;
@@ -117,6 +118,11 @@ export class DatabaseStorage implements IStorage {
       id: randomUUID(),
       ...timetable,
     }).returning();
+    return result;
+  }
+
+  async updateTimetable(id: string, timetable: InsertTimetable): Promise<Timetable> {
+    const [result] = await db.update(schema.timetables).set(timetable).where(eq(schema.timetables.id, id)).returning();
     return result;
   }
 
