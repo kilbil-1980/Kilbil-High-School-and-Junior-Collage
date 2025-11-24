@@ -226,6 +226,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = req.body;
+      const adminPassword = process.env.ADMIN_PASSWORD || "kilbil2024";
+      
+      if (password === adminPassword) {
+        req.session!.adminLoggedIn = true;
+        res.json({ success: true });
+      } else {
+        res.status(401).json({ message: "Invalid password" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.get("/api/admin/check", async (req, res) => {
+    if (req.session?.adminLoggedIn) {
+      res.json({ authenticated: true });
+    } else {
+      res.status(401).json({ authenticated: false });
+    }
+  });
+
+  app.post("/api/admin/logout", async (req, res) => {
+    req.session!.adminLoggedIn = false;
+    res.json({ success: true });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

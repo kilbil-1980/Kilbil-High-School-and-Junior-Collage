@@ -155,6 +155,15 @@ export function Navbar() {
             >
               <Link href="/contact">Contact</Link>
             </Button>
+
+            <Button 
+              variant={isActive("/announcements") ? "secondary" : "ghost"} 
+              size="sm"
+              asChild
+              data-testid="button-nav-announcements"
+            >
+              <Link href="/announcements">Announcements</Link>
+            </Button>
           </div>
 
           <Button
@@ -228,6 +237,9 @@ export function Navbar() {
             </Button>
             <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-contact">
               <Link href="/contact">Contact</Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-announcements">
+              <Link href="/announcements">Announcements</Link>
             </Button>
           </div>
         </div>
