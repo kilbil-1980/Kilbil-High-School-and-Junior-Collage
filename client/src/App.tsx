@@ -8,6 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AnnouncementTicker } from "@/components/AnnouncementTicker";
 import { AdminLogin } from "@/components/AdminLogin";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import PresidentMessage from "@/pages/PresidentMessage";
@@ -28,8 +29,10 @@ import Admin from "@/pages/Admin";
 
 function Router({ isAdminLoggedIn }: { isAdminLoggedIn: boolean }) {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
+    <>
+      <ScrollToTop />
+      <Switch>
+        <Route path="/" component={Home} />
       
       <Route path="/about/president" component={PresidentMessage} />
       <Route path="/about/director" component={DirectorMessage} />
@@ -61,7 +64,8 @@ function Router({ isAdminLoggedIn }: { isAdminLoggedIn: boolean }) {
       <Route path="/admin">{isAdminLoggedIn ? <Admin /> : <NotFound />}</Route>
       
       <Route component={NotFound} />
-    </Switch>
+      </Switch>
+    </>
   );
 }
 
