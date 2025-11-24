@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -16,6 +17,20 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => location === path;
+
+  const { data: authStatus } = useQuery({
+    queryKey: ["/api/admin/check"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/check");
+      return res.json();
+    },
+    refetchInterval: 5000,
+  });
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    window.location.reload();
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
@@ -164,6 +179,28 @@ export function Navbar() {
             >
               <Link href="/announcements">Announcements</Link>
             </Button>
+
+            {authStatus?.authenticated && (
+              <>
+                <Button 
+                  variant={isActive("/admin") ? "secondary" : "ghost"} 
+                  size="sm"
+                  asChild
+                  data-testid="button-nav-admin"
+                >
+                  <Link href="/admin">Admin</Link>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  data-testid="button-logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
+            )}
           </div>
 
           <Button
@@ -241,6 +278,17 @@ export function Navbar() {
             <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-announcements">
               <Link href="/announcements">Announcements</Link>
             </Button>
+
+            {authStatus?.authenticated && (
+              <>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admin">
+                  <Link href="/admin">Admin</Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => { setMobileMenuOpen(false); handleLogout(); }} data-testid="button-mobile-logout">
+                  Logout
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
