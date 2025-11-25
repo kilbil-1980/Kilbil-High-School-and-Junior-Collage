@@ -175,39 +175,43 @@ export function AdminFacilities() {
             <div className="space-y-4">
               <div className="space-y-3">
                 {facilities.map((facility) => (
-                  <div key={facility.id} className="border rounded-md p-4" data-testid={`facility-${facility.id}`}>
-                    <div className="flex justify-between items-start gap-3 mb-2">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{facility.name}</h4>
-                        {facility.imageUrl && (
-                          <img
-                            src={facility.imageUrl}
-                            alt={facility.name}
-                            className="w-full h-32 object-cover rounded-md mt-2"
-                          />
-                        )}
+                  <Card key={facility.id} className="hover-elevate" data-testid={`facility-${facility.id}`}>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg">{facility.name}</CardTitle>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleEdit(facility)}
+                            data-testid={`button-edit-facility-${facility.id}`}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteConfirm(facility.id)}
+                            data-testid={`button-delete-facility-${facility.id}`}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleEdit(facility)}
-                          data-testid={`button-edit-facility-${facility.id}`}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteConfirm(facility.id)}
-                          data-testid={`button-delete-facility-${facility.id}`}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{facility.description}</p>
-                  </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {facility.imageUrl && (
+                        <img
+                          src={facility.imageUrl}
+                          alt={facility.name}
+                          className="w-full h-40 object-cover rounded-md"
+                        />
+                      )}
+                      <p className="text-sm text-muted-foreground">{facility.description}</p>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
 
