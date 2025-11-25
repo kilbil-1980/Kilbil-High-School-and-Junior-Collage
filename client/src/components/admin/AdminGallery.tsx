@@ -27,7 +27,7 @@ export function AdminGallery() {
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { data: images } = useQuery<GalleryImage[]>({
+  const { data: images = [] } = useQuery<GalleryImage[]>({
     queryKey: ["/api/gallery"],
   });
 
@@ -114,7 +114,7 @@ export function AdminGallery() {
           <CardTitle>Gallery Images</CardTitle>
         </CardHeader>
         <CardContent>
-          {!images || images.length === 0 ? (
+          {!Array.isArray(images) || images.length === 0 ? (
             <p className="text-muted-foreground text-center py-8" data-testid="text-no-gallery-images">
               No images in gallery yet
             </p>
