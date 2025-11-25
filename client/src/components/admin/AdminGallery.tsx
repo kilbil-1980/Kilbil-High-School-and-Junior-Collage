@@ -27,9 +27,11 @@ export function AdminGallery() {
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { data: images = [] } = useQuery<GalleryImage[]>({
+  const { data } = useQuery<{ images: GalleryImage[]; pagination: any }>({
     queryKey: ["/api/gallery"],
   });
+
+  const images = data?.images || [];
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => apiRequest("POST", "/api/gallery", data),
@@ -114,7 +116,7 @@ export function AdminGallery() {
           <CardTitle>Gallery Images</CardTitle>
         </CardHeader>
         <CardContent>
-          {!Array.isArray(images) || images.length === 0 ? (
+          {images.length === 0 ? (
             <p className="text-muted-foreground text-center py-8" data-testid="text-no-gallery-images">
               No images in gallery yet
             </p>
