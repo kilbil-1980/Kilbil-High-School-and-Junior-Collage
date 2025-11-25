@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight, Edit2, X } from "lucide-react";
 import type { Facility } from "@shared/schema";
 
 export function AdminFacilities() {
@@ -27,6 +27,7 @@ export function AdminFacilities() {
     imageUrl: "",
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
@@ -39,10 +40,18 @@ export function AdminFacilities() {
   const facilities = allFacilities.slice(startIndex, startIndex + itemsPerPage);
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) => apiRequest("POST", "/api/facilities", data),
+    mutationFn: (data: typeof formData) => 
+      editingId 
+        ? apiRequest("PATCH", `/api/facilities/${editingId}`, data)
+        : apiRequest("POST", "/api/facilities", data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Facility added successfully" });
+      toast({ 
+        title: "Success", 
+        description: editingId ? "Facility updated successfully" : "Facility added successfully" 
+      });
       setFormData({ name: "", description: "", imageUrl: "" });
+      setEditingId(null);
+      setCurrentPage(1);
       queryClient.invalidateQueries({ queryKey: ["/api/facilities?limit=1000"] });
     },
   });
@@ -65,13 +74,37 @@ export function AdminFacilities() {
     createMutation.mutate(formData);
   };
 
+  const handleEdit = (facility: Facility) => {
+    setEditingId(facility.id);
+    setFormData({
+      name: facility.name,
+      description: facility.description,
+      imageUrl: facility.imageUrl || "",
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ name: "", description: "", imageUrl: "" });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Facility
+            {editingId ? (
+              <>
+                <Edit2 className="w-5 h-5" />
+                Edit Facility
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
+                Add Facility
+              </>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -110,9 +143,21 @@ export function AdminFacilities() {
               />
             </div>
 
-            <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-facility">
-              {createMutation.isPending ? "Adding..." : "Add Facility"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-facility" className="flex-1">
+                {createMutation.isPending ? (editingId ? "Updating..." : "Adding...") : (editingId ? "Update Facility" : "Add Facility")}
+              </Button>
+              {editingId && (
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  data-testid="button-cancel-edit"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -142,14 +187,24 @@ export function AdminFacilities() {
                           />
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteConfirm(facility.id)}
-                        data-testid={`button-delete-facility-${facility.id}`}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleEdit(facility)}
+                          data-testid={`button-edit-facility-${facility.id}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteConfirm(facility.id)}
+                          data-testid={`button-delete-facility-${facility.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
                     <p className="text-sm text-muted-foreground">{facility.description}</p>
                   </div>

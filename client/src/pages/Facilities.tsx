@@ -25,7 +25,7 @@ export default function Facilities() {
     });
   }, []);
   const { data: facilities, isLoading } = useQuery<Facility[]>({
-    queryKey: ["/api/facilities"],
+    queryKey: ["/api/facilities?limit=1000"],
   });
 
   if (isLoading) {
