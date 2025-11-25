@@ -473,6 +473,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/facilities/:id", async (req, res) => {
+    try {
+      const old = await storage.getFacilities().then(f => f.find(x => x.id === req.params.id));
+      const parsed = insertFacilitySchema.parse(req.body);
+      const updated = await storage.updateFacility(req.params.id, parsed);
+      await logAuditEvent(req, "UPDATE", "facilities", req.params.id, old, updated);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Facility update error:", error);
+      res.status(400).json({ message: error?.message || "Invalid facility data" });
+    }
+  });
+
   app.delete("/api/facilities/:id", async (req, res) => {
     try {
       const old = await storage.getFacilities().then(f => f.find(x => x.id === req.params.id));

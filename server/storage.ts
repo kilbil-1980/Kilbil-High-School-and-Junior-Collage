@@ -52,6 +52,7 @@ export interface IStorage {
 
   getFacilities(): Promise<Facility[]>;
   createFacility(facility: InsertFacility): Promise<Facility>;
+  updateFacility(id: string, facility: InsertFacility): Promise<Facility>;
   deleteFacility(id: string): Promise<void>;
 
   getTestimonials(): Promise<Testimonial[]>;
@@ -202,6 +203,11 @@ export class DatabaseStorage implements IStorage {
       id: randomUUID(),
       ...facility,
     }).returning();
+    return result;
+  }
+
+  async updateFacility(id: string, facility: InsertFacility): Promise<Facility> {
+    const [result] = await db.update(schema.facilities).set(facility).where(eq(schema.facilities.id, id)).returning();
     return result;
   }
 
