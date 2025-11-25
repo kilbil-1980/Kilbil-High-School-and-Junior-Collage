@@ -92,8 +92,8 @@ export default function Timetable() {
                       border transition-all duration-300 hover:shadow-lg hover:-translate-y-1
                       ${
                         isBreak
-                          ? "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 dark:from-orange-950/30 dark:to-amber-950/30 dark:border-orange-800"
-                          : "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 dark:from-blue-950/30 dark:to-indigo-950/30 dark:border-blue-800"
+                          ? "bg-secondary/10 border-secondary/30 dark:bg-secondary/20 dark:border-secondary/40"
+                          : "bg-primary/10 border-primary/30 dark:bg-primary/20 dark:border-primary/40"
                       }
                     `}
                     >
@@ -106,21 +106,21 @@ export default function Timetable() {
                             p-2 rounded-lg shrink-0
                             ${
                               isBreak
-                                ? "bg-orange-200 dark:bg-orange-900/50"
-                                : "bg-blue-200 dark:bg-blue-900/50"
+                                ? "bg-secondary/20 dark:bg-secondary/30"
+                                : "bg-primary/20 dark:bg-primary/30"
                             }
                           `}
                           >
                             <Icon
-                              className={`w-5 h-5 ${isBreak ? "text-orange-700 dark:text-orange-300" : "text-blue-700 dark:text-blue-300"}`}
+                              className={`w-5 h-5 ${isBreak ? "text-secondary dark:text-secondary" : "text-primary dark:text-primary"}`}
                             />
                           </div>
                           <div className="flex-1">
                             <h3
                               className={`text-base font-bold mb-1 ${
                                 isBreak
-                                  ? "text-orange-900 dark:text-orange-100"
-                                  : "text-blue-900 dark:text-blue-100"
+                                  ? "text-secondary"
+                                  : "text-primary"
                               }`}
                             >
                               {period.name}
@@ -142,8 +142,8 @@ export default function Timetable() {
                       w-6 h-6 rounded-full border-4 border-background shadow-lg
                       ${
                         isBreak
-                          ? "bg-gradient-to-br from-orange-400 to-amber-500"
-                          : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                          ? "bg-secondary"
+                          : "bg-primary"
                       }
                     `}
                     >
@@ -173,8 +173,8 @@ export default function Timetable() {
                     border transition-all duration-300 hover:shadow-lg
                     ${
                       isBreak
-                        ? "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 dark:from-orange-950/30 dark:to-amber-950/30 dark:border-orange-800"
-                        : "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 dark:from-blue-950/30 dark:to-indigo-950/30 dark:border-blue-800"
+                        ? "bg-secondary/10 border-secondary/30 dark:bg-secondary/20 dark:border-secondary/40"
+                        : "bg-primary/10 border-primary/30 dark:bg-primary/20 dark:border-primary/40"
                     }
                   `}
                   data-testid={`period-${index}`}
@@ -189,21 +189,21 @@ export default function Timetable() {
                         p-2 rounded-lg shrink-0
                         ${
                           isBreak
-                            ? "bg-orange-200 dark:bg-orange-900/50"
-                            : "bg-blue-200 dark:bg-blue-900/50"
+                            ? "bg-secondary/20 dark:bg-secondary/30"
+                            : "bg-primary/20 dark:bg-primary/30"
                         }
                       `}
                       >
                         <Icon
-                          className={`w-5 h-5 ${isBreak ? "text-orange-700 dark:text-orange-300" : "text-blue-700 dark:text-blue-300"}`}
+                          className={`w-5 h-5 ${isBreak ? "text-secondary dark:text-secondary" : "text-primary dark:text-primary"}`}
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3
                           className={`text-sm sm:text-base font-bold mb-1 ${
                             isBreak
-                              ? "text-orange-900 dark:text-orange-100"
-                              : "text-blue-900 dark:text-blue-100"
+                              ? "text-secondary"
+                              : "text-primary"
                           }`}
                         >
                           {period.name}
@@ -226,7 +226,7 @@ export default function Timetable() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 py-16">
+      <div className="min-h-screen bg-background py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <Skeleton className="h-32 w-full mb-8 rounded-xl" />
           <Skeleton className="h-[600px] w-full rounded-xl" />
@@ -264,11 +264,11 @@ export default function Timetable() {
       <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-10 md:mb-12">
-          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 mb-4 sm:mb-5 md:mb-6 shadow-lg">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl bg-primary mb-4 sm:mb-5 md:mb-6 shadow-lg">
             <Clock className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
           </div>
           <h1
-            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 text-primary"
             data-testid="text-page-title"
           >
             Daily Timetable
@@ -280,25 +280,25 @@ export default function Timetable() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 h-auto p-1 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border">
+          <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 h-auto p-1 bg-background border-2 border-primary/20">
             <TabsTrigger
               value="morning"
               data-testid="tab-morning"
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
             >
               Morning
             </TabsTrigger>
             <TabsTrigger
               value="afternoon"
               data-testid="tab-afternoon"
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
             >
               Afternoon
             </TabsTrigger>
             <TabsTrigger
               value="college"
               data-testid="tab-college"
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
             >
               Junior College
             </TabsTrigger>
