@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Facility } from "@shared/schema";
 
 export function AdminFacilities() {
@@ -27,10 +27,16 @@ export function AdminFacilities() {
     imageUrl: "",
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
-  const { data: facilities } = useQuery<Facility[]>({
+  const { data: allFacilities = [] } = useQuery<Facility[]>({
     queryKey: ["/api/facilities"],
   });
+
+  const totalPages = Math.ceil(allFacilities.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const facilities = allFacilities.slice(startIndex, startIndex + itemsPerPage);
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => apiRequest("POST", "/api/facilities", data),
@@ -60,7 +66,7 @@ export function AdminFacilities() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -116,28 +122,67 @@ export function AdminFacilities() {
           <CardTitle>Current Facilities</CardTitle>
         </CardHeader>
         <CardContent>
-          {!facilities || facilities.length === 0 ? (
+          {allFacilities.length === 0 ? (
             <p className="text-muted-foreground text-center py-8" data-testid="text-no-facilities">
               No facilities added yet
             </p>
           ) : (
-            <div className="space-y-3">
-              {facilities.map((facility) => (
-                <div key={facility.id} className="border rounded-md p-4" data-testid={`facility-${facility.id}`}>
-                  <div className="flex justify-between items-start gap-3 mb-2">
-                    <h4 className="font-semibold">{facility.name}</h4>
+            <div className="space-y-4">
+              <div className="space-y-3">
+                {facilities.map((facility) => (
+                  <div key={facility.id} className="border rounded-md p-4" data-testid={`facility-${facility.id}`}>
+                    <div className="flex justify-between items-start gap-3 mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{facility.name}</h4>
+                        {facility.imageUrl && (
+                          <img
+                            src={facility.imageUrl}
+                            alt={facility.name}
+                            className="w-full h-32 object-cover rounded-md mt-2"
+                          />
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteConfirm(facility.id)}
+                        data-testid={`button-delete-facility-${facility.id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{facility.description}</p>
+                  </div>
+                ))}
+              </div>
+
+              {allFacilities.length > itemsPerPage && (
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages} ({allFacilities.length} total)
+                  </p>
+                  <div className="flex gap-2">
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteConfirm(facility.id)}
-                      data-testid={`button-delete-facility-${facility.id}`}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      data-testid="button-prev-page"
                     >
-                      <Trash2 className="w-4 h-4 text-destructive" />
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      data-testid="button-next-page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground">{facility.description}</p>
                 </div>
-              ))}
+              )}
             </div>
           )}
         </CardContent>

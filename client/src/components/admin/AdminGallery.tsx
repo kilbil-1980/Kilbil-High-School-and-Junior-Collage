@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -14,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import type { GalleryImage } from "@shared/schema";
 
 export function AdminGallery() {
@@ -26,12 +33,24 @@ export function AdminGallery() {
     caption: "",
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filterCategory, setFilterCategory] = useState("all");
+  const itemsPerPage = 12;
 
   const { data } = useQuery<{ images: GalleryImage[]; pagination: any }>({
     queryKey: ["/api/gallery"],
   });
 
-  const images = data?.images || [];
+  const allImages = data?.images || [];
+  const categories = ["all", ...new Set(allImages.map((img) => img.category))];
+  
+  const filteredImages = filterCategory === "all" 
+    ? allImages 
+    : allImages.filter((img) => img.category === filterCategory);
+  
+  const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const images = filteredImages.slice(startIndex, startIndex + itemsPerPage);
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => apiRequest("POST", "/api/gallery", data),
@@ -60,8 +79,13 @@ export function AdminGallery() {
     createMutation.mutate(formData);
   };
 
+  const handleCategoryChange = (category: string) => {
+    setFilterCategory(category);
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -113,39 +137,85 @@ export function AdminGallery() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Gallery Images</CardTitle>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle>Gallery Images</CardTitle>
+            <div className="w-full sm:w-auto">
+              <Select value={filterCategory} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="w-full sm:w-[200px]" data-testid="select-gallery-filter">
+                  <SelectValue placeholder="Filter by category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat} data-testid={`filter-option-${cat}`}>
+                      {cat === "all" ? "All Categories" : cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          {images.length === 0 ? (
+          {filteredImages.length === 0 ? (
             <p className="text-muted-foreground text-center py-8" data-testid="text-no-gallery-images">
-              No images in gallery yet
+              {filterCategory === "all" ? "No images in gallery yet" : `No images in "${filterCategory}" category`}
             </p>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {images.map((image) => (
-                <div key={image.id} className="relative group" data-testid={`gallery-image-${image.id}`}>
-                  <div className="aspect-square rounded-md overflow-hidden bg-muted">
-                    <img
-                      src={image.imageUrl}
-                      alt={image.caption || "Gallery image"}
-                      className="w-full h-full object-cover"
-                    />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {images.map((image) => (
+                  <div key={image.id} className="relative group" data-testid={`gallery-image-${image.id}`}>
+                    <div className="aspect-square rounded-md overflow-hidden bg-muted">
+                      <img
+                        src={image.imageUrl}
+                        alt={image.caption || "Gallery image"}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => setDeleteConfirm(image.id)}
+                      data-testid={`button-delete-gallery-${image.id}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                    {image.caption && (
+                      <p className="text-xs text-muted-foreground mt-1 truncate">{image.caption}</p>
+                    )}
+                    <p className="text-xs text-primary mt-1">{image.category}</p>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => setDeleteConfirm(image.id)}
-                    data-testid={`button-delete-gallery-${image.id}`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                  {image.caption && (
-                    <p className="text-xs text-muted-foreground mt-1 truncate">{image.caption}</p>
-                  )}
-                  <p className="text-xs text-primary mt-1">{image.category}</p>
+                ))}
+              </div>
+
+              {filteredImages.length > itemsPerPage && (
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages} ({filteredImages.length} total)
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      data-testid="button-prev-page"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      data-testid="button-next-page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              ))}
+              )}
             </div>
           )}
         </CardContent>
