@@ -38,11 +38,11 @@ export function AdminGallery() {
   const itemsPerPage = 12;
 
   const { data } = useQuery<{ images: GalleryImage[]; pagination: any }>({
-    queryKey: ["/api/gallery"],
+    queryKey: ["/api/gallery?limit=1000"],
   });
 
   const allImages = data?.images || [];
-  const categories = ["all", ...new Set(allImages.map((img) => img.category))];
+  const categories = ["all", ...Array.from(new Set(allImages.map((img) => img.category)))];
   
   const filteredImages = filterCategory === "all" 
     ? allImages 
@@ -57,7 +57,7 @@ export function AdminGallery() {
     onSuccess: () => {
       toast({ title: "Success", description: "Image added to gallery" });
       setFormData({ category: "", imageUrl: "", caption: "" });
-      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery?limit=1000"] });
     },
   });
 
@@ -66,7 +66,7 @@ export function AdminGallery() {
     onSuccess: () => {
       toast({ title: "Success", description: "Image removed from gallery" });
       setDeleteConfirm(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery?limit=1000"] });
     },
   });
 

@@ -31,7 +31,7 @@ export function AdminFacilities() {
   const itemsPerPage = 12;
 
   const { data: allFacilities = [] } = useQuery<Facility[]>({
-    queryKey: ["/api/facilities"],
+    queryKey: ["/api/facilities?limit=1000"],
   });
 
   const totalPages = Math.ceil(allFacilities.length / itemsPerPage);
@@ -43,7 +43,7 @@ export function AdminFacilities() {
     onSuccess: () => {
       toast({ title: "Success", description: "Facility added successfully" });
       setFormData({ name: "", description: "", imageUrl: "" });
-      queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/facilities?limit=1000"] });
     },
   });
 
@@ -52,7 +52,7 @@ export function AdminFacilities() {
     onSuccess: () => {
       toast({ title: "Success", description: "Facility removed successfully" });
       setDeleteConfirm(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/facilities?limit=1000"] });
     },
   });
 
