@@ -280,25 +280,25 @@ export default function Timetable() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 h-auto p-1 sm:p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border">
+          <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 h-auto p-1 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border">
             <TabsTrigger
               value="morning"
               data-testid="tab-morning"
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-2 sm:py-3 px-1 sm:px-2 text-xs sm:text-sm md:text-base font-semibold rounded-md sm:rounded-lg transition-all"
+              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
             >
               Morning
             </TabsTrigger>
             <TabsTrigger
               value="afternoon"
               data-testid="tab-afternoon"
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-2 sm:py-3 px-1 sm:px-2 text-xs sm:text-sm md:text-base font-semibold rounded-md sm:rounded-lg transition-all"
+              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
             >
               Afternoon
             </TabsTrigger>
             <TabsTrigger
               value="college"
               data-testid="tab-college"
-              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-2 sm:py-3 px-1 sm:px-2 text-xs sm:text-sm md:text-base font-semibold rounded-md sm:rounded-lg transition-all"
+              className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white py-1.5 sm:py-2 px-1 text-xs sm:text-sm font-medium rounded-md transition-all"
             >
               Junior College
             </TabsTrigger>
