@@ -32,7 +32,7 @@ export function AdminFacilities() {
   const itemsPerPage = 9;
 
   const { data: allFacilities = [] } = useQuery<Facility[]>({
-    queryKey: ["/api/facilities?limit=1000"],
+    queryKey: ["/api/facilities"],
   });
 
   const totalPages = Math.ceil(allFacilities.length / itemsPerPage);
@@ -52,7 +52,7 @@ export function AdminFacilities() {
       setFormData({ name: "", description: "", imageUrl: "" });
       setEditingId(null);
       setCurrentPage(1);
-      queryClient.invalidateQueries({ queryKey: ["/api/facilities?limit=1000"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
     },
   });
 
