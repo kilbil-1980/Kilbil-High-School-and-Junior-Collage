@@ -27,6 +27,7 @@ export function AdminFaculty() {
     experience: "",
     subject: "",
     bio: "",
+    photo: "",
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -58,7 +59,7 @@ export function AdminFaculty() {
         title: "Success", 
         description: editingId ? "Faculty member updated successfully" : "Faculty member added successfully" 
       });
-      setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "" });
+      setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "", photo: "" });
       setPhotoFile(null);
       setEditingId(null);
       setCurrentPage(1);
@@ -82,7 +83,7 @@ export function AdminFaculty() {
       return;
     }
 
-    let photoBase64 = formData.name;
+    let photoBase64 = "";
     if (photoFile) {
       photoBase64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();
@@ -102,13 +103,14 @@ export function AdminFaculty() {
       experience: faculty.experience,
       subject: faculty.subject,
       bio: faculty.bio,
+      photo: faculty.photo || "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "" });
+    setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "", photo: "" });
     setPhotoFile(null);
   };
 

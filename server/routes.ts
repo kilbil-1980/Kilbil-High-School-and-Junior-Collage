@@ -103,6 +103,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/faculty/:id", async (req, res) => {
+    try {
+      const old = await storage.getFaculty().then(f => f.find(x => x.id === req.params.id));
+      const parsed = insertFacultySchema.parse(req.body);
+      const updated = await storage.updateFaculty(req.params.id, parsed);
+      await logAuditEvent(req, "UPDATE", "faculty", req.params.id, old, updated);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Faculty update error:", error);
+      res.status(400).json({ message: error?.message || "Invalid faculty data" });
+    }
+  });
+
   app.delete("/api/faculty/:id", async (req, res) => {
     try {
       const old = await storage.getFaculty().then(f => f.find(x => x.id === req.params.id));

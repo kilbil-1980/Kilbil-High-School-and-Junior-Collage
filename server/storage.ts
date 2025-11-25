@@ -31,6 +31,7 @@ export interface IStorage {
 
   getFaculty(): Promise<Faculty[]>;
   createFaculty(faculty: InsertFaculty): Promise<Faculty>;
+  updateFaculty(id: string, faculty: InsertFaculty): Promise<Faculty>;
   deleteFaculty(id: string): Promise<void>;
 
   getTimetables(): Promise<Timetable[]>;
@@ -101,6 +102,11 @@ export class DatabaseStorage implements IStorage {
       id: randomUUID(),
       ...faculty,
     }).returning();
+    return result;
+  }
+
+  async updateFaculty(id: string, faculty: InsertFaculty): Promise<Faculty> {
+    const [result] = await db.update(schema.faculty).set(faculty).where(eq(schema.faculty.id, id)).returning();
     return result;
   }
 
