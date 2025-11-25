@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Edit2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Faculty } from "@shared/schema";
 
 export function AdminFaculty() {
@@ -30,17 +30,38 @@ export function AdminFaculty() {
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const { data: facultyList } = useQuery<Faculty[]>({
+  const { data: allFacultyList = [] } = useQuery<Faculty[]>({
     queryKey: ["/api/faculty"],
   });
 
+  const filteredList = allFacultyList.filter((f) =>
+    f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    f.subject.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const facultyList = filteredList.slice(startIndex, startIndex + itemsPerPage);
+
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) => apiRequest("POST", "/api/faculty", data),
+    mutationFn: (data: typeof formData) => 
+      editingId 
+        ? apiRequest("PATCH", `/api/faculty/${editingId}`, data)
+        : apiRequest("POST", "/api/faculty", data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Faculty member added successfully" });
+      toast({ 
+        title: "Success", 
+        description: editingId ? "Faculty member updated successfully" : "Faculty member added successfully" 
+      });
       setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "" });
       setPhotoFile(null);
+      setEditingId(null);
+      setCurrentPage(1);
       queryClient.invalidateQueries({ queryKey: ["/api/faculty"] });
     },
   });
@@ -61,7 +82,7 @@ export function AdminFaculty() {
       return;
     }
 
-    let photoBase64 = "";
+    let photoBase64 = formData.name;
     if (photoFile) {
       photoBase64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();
@@ -73,13 +94,40 @@ export function AdminFaculty() {
     createMutation.mutate({ ...formData, photo: photoBase64 || undefined });
   };
 
+  const handleEdit = (faculty: Faculty) => {
+    setEditingId(faculty.id);
+    setFormData({
+      name: faculty.name,
+      qualification: faculty.qualification,
+      experience: faculty.experience,
+      subject: faculty.subject,
+      bio: faculty.bio,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ name: "", qualification: "", experience: "", subject: "", bio: "" });
+    setPhotoFile(null);
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Faculty Member
+            {editingId ? (
+              <>
+                <Edit2 className="w-5 h-5" />
+                Edit Faculty Member
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
+                Add Faculty Member
+              </>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -152,43 +200,114 @@ export function AdminFaculty() {
               <p className="text-xs text-muted-foreground">Accepted formats: JPG, PNG (Max 5MB)</p>
             </div>
 
-            <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-faculty">
-              {createMutation.isPending ? "Adding..." : "Add Faculty Member"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-faculty" className="flex-1">
+                {createMutation.isPending ? (editingId ? "Updating..." : "Adding...") : (editingId ? "Update Faculty Member" : "Add Faculty Member")}
+              </Button>
+              {editingId && (
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  data-testid="button-cancel-edit"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Current Faculty</CardTitle>
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+            <CardTitle>Current Faculty</CardTitle>
+            <Input
+              placeholder="Search by name or subject..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full sm:w-[250px]"
+              data-testid="input-faculty-search"
+            />
+          </div>
         </CardHeader>
         <CardContent>
-          {!facultyList || facultyList.length === 0 ? (
+          {filteredList.length === 0 ? (
             <p className="text-muted-foreground text-center py-8" data-testid="text-no-faculty">
-              No faculty members yet
+              {searchQuery ? "No faculty members found" : "No faculty members yet"}
             </p>
           ) : (
-            <div className="space-y-3">
-              {facultyList.map((faculty) => (
-                <div key={faculty.id} className="border rounded-md p-4" data-testid={`faculty-${faculty.id}`}>
-                  <div className="flex justify-between items-start gap-3 mb-2">
-                    <div>
-                      <h4 className="font-semibold">{faculty.name}</h4>
-                      <p className="text-sm text-primary">{faculty.subject}</p>
+            <div className="space-y-4">
+              <div className="space-y-3">
+                {facultyList.map((faculty) => (
+                  <div key={faculty.id} className="border rounded-md p-4" data-testid={`faculty-${faculty.id}`}>
+                    <div className="flex justify-between items-start gap-3 mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{faculty.name}</h4>
+                        <p className="text-sm text-primary">{faculty.subject}</p>
+                        {faculty.photo && (
+                          <img
+                            src={faculty.photo}
+                            alt={faculty.name}
+                            className="w-full h-24 object-cover rounded-md mt-2"
+                          />
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleEdit(faculty)}
+                          data-testid={`button-edit-faculty-${faculty.id}`}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteConfirm(faculty.id)}
+                          data-testid={`button-delete-faculty-${faculty.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
+                    <p className="text-xs text-muted-foreground">{faculty.qualification} | {faculty.experience}</p>
+                  </div>
+                ))}
+              </div>
+
+              {filteredList.length > itemsPerPage && (
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages} ({filteredList.length} total)
+                  </p>
+                  <div className="flex gap-2">
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteConfirm(faculty.id)}
-                      data-testid={`button-delete-faculty-${faculty.id}`}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      data-testid="button-prev-page"
                     >
-                      <Trash2 className="w-4 h-4 text-destructive" />
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      data-testid="button-next-page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">{faculty.qualification} | {faculty.experience}</p>
                 </div>
-              ))}
+              )}
             </div>
           )}
         </CardContent>
