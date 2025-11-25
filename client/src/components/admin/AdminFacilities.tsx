@@ -173,44 +173,50 @@ export function AdminFacilities() {
             </p>
           ) : (
             <div className="space-y-4">
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {facilities.map((facility) => (
-                  <Card key={facility.id} className="hover-elevate" data-testid={`facility-${facility.id}`}>
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg">{facility.name}</CardTitle>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleEdit(facility)}
-                            data-testid={`button-edit-facility-${facility.id}`}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteConfirm(facility.id)}
-                            data-testid={`button-delete-facility-${facility.id}`}
-                          >
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {facility.imageUrl && (
+                  <Card key={facility.id} className="overflow-hidden hover-elevate flex flex-col" data-testid={`facility-${facility.id}`}>
+                    <div className="h-48 overflow-hidden bg-muted">
+                      {facility.imageUrl ? (
                         <img
                           src={facility.imageUrl}
                           alt={facility.name}
-                          className="w-full h-40 object-cover rounded-md"
+                          className="w-full h-full object-cover"
                         />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          No image
+                        </div>
                       )}
-                      <p className="text-sm text-muted-foreground">{facility.description}</p>
+                    </div>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base line-clamp-2">{facility.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-1 pb-3">
+                      <p className="text-xs text-muted-foreground line-clamp-3">{facility.description}</p>
                     </CardContent>
+                    <div className="flex gap-2 px-6 pb-4 border-t pt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(facility)}
+                        className="flex-1"
+                        data-testid={`button-edit-facility-${facility.id}`}
+                      >
+                        <Edit2 className="w-3 h-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeleteConfirm(facility.id)}
+                        className="flex-1"
+                        data-testid={`button-delete-facility-${facility.id}`}
+                      >
+                        <Trash2 className="w-3 h-3 mr-1 text-destructive" />
+                        Delete
+                      </Button>
+                    </div>
                   </Card>
                 ))}
               </div>
