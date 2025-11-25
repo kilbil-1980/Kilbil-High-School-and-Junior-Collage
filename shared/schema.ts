@@ -121,6 +121,7 @@ export const insertCareerSchema = createInsertSchema(careers).omit({ id: true, c
 });
 export const insertGalleryImageSchema = createInsertSchema(galleryImages).omit({ id: true }).extend({
   caption: z.string().optional(),
+  uploadedAt: z.date().optional(),
 });
 export const insertFacilitySchema = createInsertSchema(facilities).omit({ id: true, order: true }).extend({
   imageUrl: z.string().optional(),

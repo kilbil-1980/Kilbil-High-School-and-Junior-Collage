@@ -92,7 +92,9 @@ export function AdminFaculty() {
       });
     }
 
-    createMutation.mutate({ ...formData, photo: photoBase64 || undefined });
+    // When editing without new photo, keep existing photo; otherwise use new photo
+    const photoToSend = photoBase64 || (editingId ? formData.photo : undefined);
+    createMutation.mutate({ ...formData, photo: photoToSend });
   };
 
   const handleEdit = (faculty: Faculty) => {
