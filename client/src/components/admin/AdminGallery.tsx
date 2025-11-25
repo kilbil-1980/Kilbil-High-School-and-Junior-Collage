@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, ChevronRight, Edit2, X } from "lucide-react";
 import type { GalleryImage } from "@shared/schema";
 
 export function AdminGallery() {
@@ -33,6 +33,7 @@ export function AdminGallery() {
     caption: "",
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [filterCategory, setFilterCategory] = useState("all");
   const itemsPerPage = 12;
@@ -53,10 +54,15 @@ export function AdminGallery() {
   const images = filteredImages.slice(startIndex, startIndex + itemsPerPage);
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) => apiRequest("POST", "/api/gallery", data),
+    mutationFn: (data: typeof formData) => 
+      editingId 
+        ? apiRequest("PATCH", `/api/gallery/${editingId}`, data)
+        : apiRequest("POST", "/api/gallery", data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Image added to gallery" });
+      toast({ title: "Success", description: editingId ? "Image updated successfully" : "Image added to gallery" });
       setFormData({ category: "", imageUrl: "", caption: "" });
+      setEditingId(null);
+      setCurrentPage(1);
       queryClient.invalidateQueries({ queryKey: ["/api/gallery?limit=1000"] });
     },
   });
@@ -79,6 +85,21 @@ export function AdminGallery() {
     createMutation.mutate(formData);
   };
 
+  const handleEdit = (image: GalleryImage) => {
+    setEditingId(image.id);
+    setFormData({
+      category: image.category,
+      imageUrl: image.imageUrl,
+      caption: image.caption || "",
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ category: "", imageUrl: "", caption: "" });
+  };
+
   const handleCategoryChange = (category: string) => {
     setFilterCategory(category);
     setCurrentPage(1);
@@ -89,8 +110,17 @@ export function AdminGallery() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Image to Gallery
+            {editingId ? (
+              <>
+                <Edit2 className="w-5 h-5" />
+                Edit Gallery Image
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
+                Add Image to Gallery
+              </>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -128,9 +158,21 @@ export function AdminGallery() {
               />
             </div>
 
-            <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-gallery">
-              {createMutation.isPending ? "Adding..." : "Add to Gallery"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-gallery" className="flex-1">
+                {createMutation.isPending ? (editingId ? "Updating..." : "Adding...") : (editingId ? "Update Image" : "Add to Gallery")}
+              </Button>
+              {editingId && (
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  data-testid="button-cancel-edit"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -162,30 +204,49 @@ export function AdminGallery() {
             </p>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {images.map((image) => (
-                  <div key={image.id} className="relative group" data-testid={`gallery-image-${image.id}`}>
-                    <div className="aspect-square rounded-md overflow-hidden bg-muted">
+                  <Card key={image.id} className="overflow-hidden hover-elevate flex flex-col" data-testid={`gallery-image-${image.id}`}>
+                    <div className="h-48 overflow-hidden bg-muted">
                       <img
                         src={image.imageUrl}
                         alt={image.caption || "Gallery image"}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => setDeleteConfirm(image.id)}
-                      data-testid={`button-delete-gallery-${image.id}`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                    {image.caption && (
-                      <p className="text-xs text-muted-foreground mt-1 truncate">{image.caption}</p>
-                    )}
-                    <p className="text-xs text-primary mt-1">{image.category}</p>
-                  </div>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="text-xs font-medium text-primary mb-1">{image.category}</div>
+                          {image.caption && (
+                            <CardTitle className="text-sm line-clamp-2">{image.caption}</CardTitle>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <div className="flex gap-2 px-6 pb-4 border-t pt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(image)}
+                        className="flex-1"
+                        data-testid={`button-edit-gallery-${image.id}`}
+                      >
+                        <Edit2 className="w-3 h-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeleteConfirm(image.id)}
+                        className="flex-1"
+                        data-testid={`button-delete-gallery-${image.id}`}
+                      >
+                        <Trash2 className="w-3 h-3 mr-1 text-destructive" />
+                        Delete
+                      </Button>
+                    </div>
+                  </Card>
                 ))}
               </div>
 

@@ -47,6 +47,7 @@ export interface IStorage {
 
   getGalleryImages(): Promise<GalleryImage[]>;
   createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage>;
+  updateGalleryImage(id: string, image: InsertGalleryImage): Promise<GalleryImage>;
   deleteGalleryImage(id: string): Promise<void>;
 
   getFacilities(): Promise<Facility[]>;
@@ -179,6 +180,11 @@ export class DatabaseStorage implements IStorage {
       ...image,
       uploadedAt: new Date(),
     }).returning();
+    return result;
+  }
+
+  async updateGalleryImage(id: string, image: InsertGalleryImage): Promise<GalleryImage> {
+    const [result] = await db.update(schema.galleryImages).set(image).where(eq(schema.galleryImages.id, id)).returning();
     return result;
   }
 

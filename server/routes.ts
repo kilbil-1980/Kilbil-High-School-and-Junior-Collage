@@ -428,6 +428,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/gallery/:id", async (req, res) => {
+    try {
+      const old = await storage.getGalleryImages().then(g => g.find(x => x.id === req.params.id));
+      const parsed = insertGalleryImageSchema.parse(req.body);
+      const updated = await storage.updateGalleryImage(req.params.id, parsed);
+      await logAuditEvent(req, "UPDATE", "gallery_images", req.params.id, old, updated);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Gallery update error:", error);
+      res.status(400).json({ message: error?.message || "Invalid gallery image data" });
+    }
+  });
+
   app.delete("/api/gallery/:id", async (req, res) => {
     try {
       const old = await storage.getGalleryImages().then(g => g.find(x => x.id === req.params.id));

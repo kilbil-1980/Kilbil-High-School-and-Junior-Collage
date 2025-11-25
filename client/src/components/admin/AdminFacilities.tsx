@@ -29,7 +29,7 @@ export function AdminFacilities() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 9;
 
   const { data: allFacilities = [] } = useQuery<Facility[]>({
     queryKey: ["/api/facilities?limit=1000"],
