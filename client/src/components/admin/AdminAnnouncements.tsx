@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Trash2, Calendar } from "lucide-react";
+import { Plus, Trash2, Calendar, Edit2, X } from "lucide-react";
 import type { Announcement } from "@shared/schema";
 
 export function AdminAnnouncements() {
@@ -27,6 +27,7 @@ export function AdminAnnouncements() {
     priority: 0,
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: announcementsData } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
@@ -35,10 +36,14 @@ export function AdminAnnouncements() {
   const announcements = announcementsData?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) => apiRequest("POST", "/api/announcements", data),
+    mutationFn: (data: typeof formData) => 
+      editingId 
+        ? apiRequest("PATCH", `/api/announcements/${editingId}`, data)
+        : apiRequest("POST", "/api/announcements", data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Announcement created successfully" });
+      toast({ title: "Success", description: editingId ? "Announcement updated successfully" : "Announcement created successfully" });
       setFormData({ title: "", content: "", priority: 0 });
+      setEditingId(null);
       queryClient.invalidateQueries({ queryKey: ["/api/announcements"] });
     },
   });
@@ -61,13 +66,36 @@ export function AdminAnnouncements() {
     createMutation.mutate(formData);
   };
 
+  const handleEdit = (announcement: Announcement) => {
+    setEditingId(announcement.id);
+    setFormData({
+      title: announcement.title,
+      content: announcement.content,
+      priority: announcement.priority,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ title: "", content: "", priority: 0 });
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add New Announcement
+            {editingId ? (
+              <>
+                <Edit2 className="w-5 h-5" />
+                Edit Announcement
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
+                Add New Announcement
+              </>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -108,9 +136,21 @@ export function AdminAnnouncements() {
               />
             </div>
 
-            <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-announcement">
-              {createMutation.isPending ? "Creating..." : "Create Announcement"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-announcement" className="flex-1">
+                {createMutation.isPending ? (editingId ? "Updating..." : "Creating...") : (editingId ? "Update Announcement" : "Create Announcement")}
+              </Button>
+              {editingId && (
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  data-testid="button-cancel-edit"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -130,14 +170,24 @@ export function AdminAnnouncements() {
                 <div key={announcement.id} className="border rounded-md p-4" data-testid={`announcement-${announcement.id}`}>
                   <div className="flex justify-between items-start gap-3 mb-2">
                     <h4 className="font-semibold break-words">{announcement.title}</h4>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteConfirm(announcement.id)}
-                      data-testid={`button-delete-announcement-${announcement.id}`}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(announcement)}
+                        data-testid={`button-edit-announcement-${announcement.id}`}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteConfirm(announcement.id)}
+                        data-testid={`button-delete-announcement-${announcement.id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground mb-2 break-words max-h-32 overflow-y-auto">{announcement.content}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">

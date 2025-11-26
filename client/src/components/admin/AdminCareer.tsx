@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Trash2, Briefcase } from "lucide-react";
+import { Plus, Trash2, Briefcase, Edit2, X } from "lucide-react";
 import type { Career } from "@shared/schema";
 
 export function AdminCareer() {
@@ -28,6 +28,7 @@ export function AdminCareer() {
     experience: "",
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: careersData } = useQuery<Career[]>({
     queryKey: ["/api/careers"],
@@ -36,10 +37,14 @@ export function AdminCareer() {
   const careers = careersData?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) => apiRequest("POST", "/api/careers", data),
+    mutationFn: (data: typeof formData) => 
+      editingId 
+        ? apiRequest("PATCH", `/api/careers/${editingId}`, data)
+        : apiRequest("POST", "/api/careers", data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Career opening added successfully" });
+      toast({ title: "Success", description: editingId ? "Career opening updated successfully" : "Career opening added successfully" });
       setFormData({ title: "", description: "", qualifications: "", experience: "" });
+      setEditingId(null);
       queryClient.invalidateQueries({ queryKey: ["/api/careers"] });
     },
   });
@@ -62,13 +67,37 @@ export function AdminCareer() {
     createMutation.mutate(formData);
   };
 
+  const handleEdit = (career: Career) => {
+    setEditingId(career.id);
+    setFormData({
+      title: career.title,
+      description: career.description,
+      qualifications: career.qualifications,
+      experience: career.experience,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ title: "", description: "", qualifications: "", experience: "" });
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Job Opening
+            {editingId ? (
+              <>
+                <Edit2 className="w-5 h-5" />
+                Edit Job Opening
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
+                Add Job Opening
+              </>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -118,9 +147,21 @@ export function AdminCareer() {
               />
             </div>
 
-            <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-career">
-              {createMutation.isPending ? "Adding..." : "Add Opening"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-career" className="flex-1">
+                {createMutation.isPending ? (editingId ? "Updating..." : "Adding...") : (editingId ? "Update Opening" : "Add Opening")}
+              </Button>
+              {editingId && (
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  data-testid="button-cancel-edit"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -143,14 +184,24 @@ export function AdminCareer() {
                 <div key={career.id} className="border rounded-md p-4" data-testid={`career-${career.id}`}>
                   <div className="flex justify-between items-start gap-3 mb-2">
                     <h4 className="font-semibold">{career.title}</h4>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteConfirm(career.id)}
-                      data-testid={`button-delete-career-${career.id}`}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(career)}
+                        data-testid={`button-edit-career-${career.id}`}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteConfirm(career.id)}
+                        data-testid={`button-delete-career-${career.id}`}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">{career.description}</p>
                   {career.qualifications && (

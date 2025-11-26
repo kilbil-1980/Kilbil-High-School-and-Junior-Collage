@@ -33,6 +33,8 @@ export function AdminManagement() {
   const [editingUsername, setEditingUsername] = useState<string | null>(null);
   const [editData, setEditData] = useState({ username: "", password: "" });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editingSubAdmin, setEditingSubAdmin] = useState<string | null>(null);
+  const [editSubAdminData, setEditSubAdminData] = useState({ username: "", password: "" });
 
   const { data: adminUsersData, isLoading } = useQuery<AdminUser[]>({
     queryKey: ["/api/admin/all-users"],
@@ -63,6 +65,20 @@ export function AdminManagement() {
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error?.message || "Failed to update user", variant: "destructive" });
+    },
+  });
+
+  const updateSubAdminMutation = useMutation({
+    mutationFn: (data: { username: string; newUsername?: string; password?: string }) =>
+      apiRequest("PATCH", `/api/admin/user/${data.username}`, { newUsername: data.newUsername, password: data.password }),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Sub admin updated successfully" });
+      setEditingSubAdmin(null);
+      setEditSubAdminData({ username: "", password: "" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/all-users"] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error?.message || "Failed to update sub admin", variant: "destructive" });
     },
   });
 
@@ -255,22 +271,101 @@ export function AdminManagement() {
               <div className="space-y-3">
                 {subAdmins.map((admin) => (
                   <div key={admin.username} className="border rounded-md p-4" data-testid={`admin-${admin.username}`}>
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{admin.username}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Created: {new Date(admin.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteConfirm(admin.username)}
-                        data-testid={`button-delete-admin-${admin.username}`}
+                    {editingSubAdmin === admin.username ? (
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (!editSubAdminData.username && !editSubAdminData.password) {
+                            toast({ title: "Error", description: "Enter username or password to update", variant: "destructive" });
+                            return;
+                          }
+                          updateSubAdminMutation.mutate({
+                            username: admin.username,
+                            newUsername: editSubAdminData.username || undefined,
+                            password: editSubAdminData.password || undefined,
+                          });
+                        }}
+                        className="space-y-3"
                       >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`edit-supadmin-username-${admin.username}`}>New Username</Label>
+                          <Input
+                            id={`edit-supadmin-username-${admin.username}`}
+                            value={editSubAdminData.username}
+                            onChange={(e) => setEditSubAdminData({ ...editSubAdminData, username: e.target.value })}
+                            placeholder="Leave empty to keep current"
+                            data-testid={`input-edit-supadmin-username-${admin.username}`}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor={`edit-supadmin-password-${admin.username}`}>New Password</Label>
+                          <Input
+                            id={`edit-supadmin-password-${admin.username}`}
+                            type="password"
+                            value={editSubAdminData.password}
+                            onChange={(e) => setEditSubAdminData({ ...editSubAdminData, password: e.target.value })}
+                            placeholder="Leave empty to keep current"
+                            data-testid={`input-edit-supadmin-password-${admin.username}`}
+                          />
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            type="submit"
+                            size="sm"
+                            disabled={updateSubAdminMutation.isPending}
+                            data-testid={`button-save-supadmin-${admin.username}`}
+                          >
+                            {updateSubAdminMutation.isPending ? "Saving..." : "Save"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingSubAdmin(null);
+                              setEditSubAdminData({ username: "", password: "" });
+                            }}
+                            data-testid={`button-cancel-supadmin-edit-${admin.username}`}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1">
+                            <h4 className="font-semibold">{admin.username}</h4>
+                            <p className="text-xs text-muted-foreground">
+                              Created: {new Date(admin.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setEditingSubAdmin(admin.username);
+                                setEditSubAdminData({ username: "", password: "" });
+                              }}
+                              data-testid={`button-edit-admin-${admin.username}`}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeleteConfirm(admin.username)}
+                              data-testid={`button-delete-admin-${admin.username}`}
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
