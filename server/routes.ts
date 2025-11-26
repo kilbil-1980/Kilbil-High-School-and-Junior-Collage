@@ -71,6 +71,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/announcements/:id", async (req, res) => {
+    try {
+      const old = await storage.getAnnouncements().then(a => a.find(x => x.id === req.params.id));
+      const parsed = insertAnnouncementSchema.parse(req.body);
+      const updated = await storage.updateAnnouncement(req.params.id, parsed);
+      await logAuditEvent(req, "UPDATE", "announcements", req.params.id, old, updated);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Announcement update error:", error);
+      res.status(400).json({ message: error?.message || "Invalid announcement data" });
+    }
+  });
+
   app.delete("/api/announcements/:id", async (req, res) => {
     try {
       const old = await storage.getAnnouncements().then(a => a.find(x => x.id === req.params.id));
@@ -651,6 +664,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(career);
     } catch (error: any) {
       console.error("Career error:", error);
+      res.status(400).json({ message: error?.message || "Invalid career data" });
+    }
+  });
+
+  app.patch("/api/careers/:id", async (req, res) => {
+    try {
+      const old = await storage.getCareers().then(c => c.find(x => x.id === req.params.id));
+      const parsed = insertCareerSchema.parse(req.body);
+      const updated = await storage.updateCareer(req.params.id, parsed);
+      await logAuditEvent(req, "UPDATE", "careers", req.params.id, old, updated);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Career update error:", error);
       res.status(400).json({ message: error?.message || "Invalid career data" });
     }
   });

@@ -27,6 +27,7 @@ export const db = drizzle(pool, { schema });
 export interface IStorage {
   getAnnouncements(): Promise<Announcement[]>;
   createAnnouncement(announcement: InsertAnnouncement): Promise<Announcement>;
+  updateAnnouncement(id: string, announcement: InsertAnnouncement): Promise<Announcement>;
   deleteAnnouncement(id: string): Promise<void>;
 
   getFaculty(): Promise<Faculty[]>;
@@ -61,6 +62,7 @@ export interface IStorage {
 
   getCareers(): Promise<Career[]>;
   createCareer(career: InsertCareer): Promise<Career>;
+  updateCareer(id: string, career: InsertCareer): Promise<Career>;
   deleteCareer(id: string): Promise<void>;
 
   getAdminUser(username: string): Promise<AdminUser | undefined>;
@@ -87,6 +89,11 @@ export class DatabaseStorage implements IStorage {
       ...announcement,
       date: new Date(),
     }).returning();
+    return result;
+  }
+
+  async updateAnnouncement(id: string, announcement: InsertAnnouncement): Promise<Announcement> {
+    const [result] = await db.update(schema.announcements).set(announcement).where(eq(schema.announcements.id, id)).returning();
     return result;
   }
 
@@ -243,6 +250,11 @@ export class DatabaseStorage implements IStorage {
       ...career,
       createdAt: new Date(),
     }).returning();
+    return result;
+  }
+
+  async updateCareer(id: string, career: InsertCareer): Promise<Career> {
+    const [result] = await db.update(schema.careers).set(career).where(eq(schema.careers.id, id)).returning();
     return result;
   }
 
