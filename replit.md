@@ -67,3 +67,25 @@ Preferred communication style: Simple, everyday language.
 **Asset Management**: Vite alias configuration allows importing assets from `@assets` directory. Generated placeholder images stored in `attached_assets/generated_images/`.
 
 **Session Management**: connect-pg-simple package available for PostgreSQL-backed session storage (prepared for authentication implementation).
+
+## Environment Variables Configuration
+
+### For Separate Deployment (Frontend & Backend on Different URLs)
+
+**Backend Environment Variables** (shared between dev & production):
+- `ALLOWED_ORIGINS`: Comma-separated list of frontend URLs allowed to make requests to the backend API
+  - Development default: `http://localhost:5000,http://localhost:3000,http://127.0.0.1:5000`
+  - Production example: `https://your-frontend-domain.com`
+  - This enables CORS support for cross-origin requests
+
+**Frontend Environment Variables** (requires `VITE_` prefix for Vite to expose them):
+- `VITE_API_URL`: The backend API URL (optional, defaults to same origin)
+  - Development default: Not set (uses current origin)
+  - Production example: `https://your-backend-domain.replit.dev`
+  - Set this to your backend deployment URL when deploying frontend separately
+
+### How It Works
+1. Backend listens for incoming requests and checks the `Origin` header
+2. If the origin matches an entry in `ALLOWED_ORIGINS`, CORS headers are added
+3. Frontend automatically uses `VITE_API_URL` for all API calls if set, otherwise falls back to current origin
+4. This allows frontend and backend to be deployed on completely different domains without CORS errors
