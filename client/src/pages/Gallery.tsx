@@ -137,11 +137,12 @@ export default function Gallery() {
                     alt={image.caption || "Gallery image"}
                     className="w-full h-64 object-cover"
                   />
-                  {image.caption && (
-                    <CardContent className="p-3">
+                  <CardContent className="p-3 space-y-1">
+                    {image.caption && (
                       <p className="text-sm text-muted-foreground truncate">{image.caption}</p>
-                    </CardContent>
-                  )}
+                    )}
+                    <p className="text-xs text-secondary-foreground font-medium">{image.category}</p>
+                  </CardContent>
                 </Card>
               ))}
             </div>
