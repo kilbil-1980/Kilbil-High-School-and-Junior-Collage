@@ -74,7 +74,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/announcements/:id", async (req, res) => {
     try {
       const old = await storage.getAnnouncements().then(a => a.find(x => x.id === req.params.id));
-      const parsed = insertAnnouncementSchema.parse(req.body);
+      const { title, content, priority } = req.body;
+      // Validate only the provided fields
+      if (!title || !content) {
+        return res.status(400).json({ message: "Title and content are required" });
+      }
+      const updateData = {
+        title,
+        content,
+        priority: priority || 0,
+        date: old?.date || new Date(), // Keep existing date or use current
+      };
+      const parsed = insertAnnouncementSchema.parse(updateData);
       const updated = await storage.updateAnnouncement(req.params.id, parsed);
       await logAuditEvent(req, "UPDATE", "announcements", req.params.id, old, updated);
       res.json(updated);
@@ -671,7 +682,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/careers/:id", async (req, res) => {
     try {
       const old = await storage.getCareers().then(c => c.find(x => x.id === req.params.id));
-      const parsed = insertCareerSchema.parse(req.body);
+      const { title, description, qualifications, experience } = req.body;
+      // Validate required fields
+      if (!title || !description) {
+        return res.status(400).json({ message: "Title and description are required" });
+      }
+      const updateData = {
+        title,
+        description,
+        qualifications: qualifications || "",
+        experience: experience || "",
+        createdAt: old?.createdAt || new Date(), // Keep existing createdAt
+      };
+      const parsed = insertCareerSchema.parse(updateData);
       const updated = await storage.updateCareer(req.params.id, parsed);
       await logAuditEvent(req, "UPDATE", "careers", req.params.id, old, updated);
       res.json(updated);
