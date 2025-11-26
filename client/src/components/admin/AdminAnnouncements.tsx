@@ -28,9 +28,11 @@ export function AdminAnnouncements() {
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { data: announcements } = useQuery<Announcement[]>({
+  const { data: announcementsData } = useQuery<Announcement[]>({
     queryKey: ["/api/announcements"],
   });
+
+  const announcements = announcementsData?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => apiRequest("POST", "/api/announcements", data),

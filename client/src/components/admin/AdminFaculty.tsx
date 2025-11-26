@@ -40,10 +40,12 @@ export function AdminFaculty() {
     queryKey: ["/api/faculty"],
   });
 
-  const filteredList = allFacultyList.filter((f) =>
-    f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    f.subject.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredList = allFacultyList
+    .filter((f) =>
+      f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.subject.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .reverse(); // Recently added first
 
   const totalPages = Math.ceil(filteredList.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

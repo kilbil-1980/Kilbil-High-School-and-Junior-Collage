@@ -30,9 +30,11 @@ export function AdminTimetables() {
   const [editPeriods, setEditPeriods] = useState<Period[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { data: timetables } = useQuery<Timetable[]>({
+  const { data: timetablesData } = useQuery<Timetable[]>({
     queryKey: ["/api/timetables"],
   });
+
+  const timetables = timetablesData ? [...timetablesData].reverse() : undefined; // Recently added first
 
   const createMutation = useMutation({
     mutationFn: (data: { category: string; periods: string }) => 

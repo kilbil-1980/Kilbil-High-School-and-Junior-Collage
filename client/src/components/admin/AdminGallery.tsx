@@ -42,7 +42,7 @@ export function AdminGallery() {
     queryKey: ["/api/gallery?limit=1000"],
   });
 
-  const allImages = data?.images || [];
+  const allImages = (data?.images || []).sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
   const categories = ["all", ...Array.from(new Set(allImages.map((img) => img.category)))];
   
   const filteredImages = filterCategory === "all" 

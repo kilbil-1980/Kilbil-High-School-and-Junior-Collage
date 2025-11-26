@@ -34,9 +34,11 @@ export function AdminManagement() {
   const [editData, setEditData] = useState({ username: "", password: "" });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { data: adminUsers, isLoading } = useQuery<AdminUser[]>({
+  const { data: adminUsersData, isLoading } = useQuery<AdminUser[]>({
     queryKey: ["/api/admin/all-users"],
   });
+
+  const adminUsers = adminUsersData?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const createMutation = useMutation({
     mutationFn: (data: { username: string; password: string }) => 

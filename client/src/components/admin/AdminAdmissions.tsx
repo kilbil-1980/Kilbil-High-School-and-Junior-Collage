@@ -21,9 +21,11 @@ export function AdminAdmissions() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [clearAllConfirm, setClearAllConfirm] = useState(false);
   
-  const { data: admissions, refetch } = useQuery<Admission[]>({
+  const { data: admissionsData, refetch } = useQuery<Admission[]>({
     queryKey: ["/api/admissions"],
   });
+
+  const admissions = admissionsData?.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/admissions/${id}`, {}),

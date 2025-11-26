@@ -31,9 +31,11 @@ export function AdminFacilities() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
-  const { data: allFacilities = [] } = useQuery<Facility[]>({
+  const { data: allFacilitiesData = [] } = useQuery<Facility[]>({
     queryKey: ["/api/facilities"],
   });
+
+  const allFacilities = [...allFacilitiesData].reverse(); // Recently added first
 
   const totalPages = Math.ceil(allFacilities.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

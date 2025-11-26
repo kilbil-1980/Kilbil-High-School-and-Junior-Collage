@@ -29,9 +29,11 @@ export function AdminCareer() {
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { data: careers } = useQuery<Career[]>({
+  const { data: careersData } = useQuery<Career[]>({
     queryKey: ["/api/careers"],
   });
+
+  const careers = careersData?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => apiRequest("POST", "/api/careers", data),
