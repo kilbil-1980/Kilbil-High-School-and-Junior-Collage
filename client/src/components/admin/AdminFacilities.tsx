@@ -61,7 +61,7 @@ export function AdminFacilities() {
     onSuccess: () => {
       toast({ title: "Success", description: "Facility removed successfully" });
       setDeleteConfirm(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/facilities?limit=1000"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/facilities"] });
     },
   });
 
