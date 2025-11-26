@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, Award, GraduationCap, Target, Lightbulb, ChevronRight } from "lucide-react";
@@ -124,6 +125,7 @@ const levelData = {
 };
 
 export default function AcademicLevel({ level }: AcademicLevelProps) {
+  const [, navigate] = useLocation();
   const data = levelData[level];
 
   useEffect(() => {
@@ -280,10 +282,10 @@ export default function AcademicLevel({ level }: AcademicLevelProps) {
             Discover how our {data.title.toLowerCase()} program can help your child achieve academic excellence and personal growth.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Button size="lg" data-testid="button-admissions">
+            <Button size="lg" data-testid="button-admissions" onClick={() => navigate("/admissions")}>
               Apply Now
             </Button>
-            <Button size="lg" variant="outline" data-testid="button-contact">
+            <Button size="lg" variant="outline" data-testid="button-contact" onClick={() => navigate("/contact")}>
               Contact Us
             </Button>
           </div>
