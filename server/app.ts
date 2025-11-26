@@ -13,6 +13,24 @@ import { registerRoutes } from "./routes";
 
 const MemStore = MemoryStore(session);
 
+// Get allowed frontend URL from environment or default to any origin in development
+const getAllowedOrigins = (): string[] => {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [];
+  
+  if (process.env.NODE_ENV === 'development') {
+    // In development, allow localhost variations and Replit domain
+    return [
+      'http://localhost:5000',
+      'http://localhost:3000',
+      'http://localhost:8080',
+      'http://127.0.0.1:5000',
+      ...allowedOrigins
+    ];
+  }
+  
+  return allowedOrigins;
+};
+
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -53,6 +71,25 @@ app.use(express.json({
   }
 }));
 app.use(express.urlencoded({ extended: false }));
+
+// Configure CORS for cross-origin requests from different deployment URLs
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = getAllowedOrigins();
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
