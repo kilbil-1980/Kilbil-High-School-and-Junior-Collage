@@ -79,10 +79,29 @@ export function AdminTimetables() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if category already has a timetable
+    if (timetables?.some(t => t.category === category)) {
+      toast({ 
+        title: "Error", 
+        description: `A timetable already exists for ${category}. Please edit or delete the existing one.`, 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
     if (periods.length === 0) {
       toast({ title: "Error", description: "Add at least one period", variant: "destructive" });
       return;
     }
+    
+    // Check for empty fields
+    const hasEmptyFields = periods.some(p => !p.name?.trim() || !p.time?.trim());
+    if (hasEmptyFields) {
+      toast({ title: "Error", description: "All periods must have a name and time", variant: "destructive" });
+      return;
+    }
+    
     createMutation.mutate({ category, periods: JSON.stringify(periods) });
   };
 
@@ -114,13 +133,35 @@ export function AdminTimetables() {
 
   const handleUpdateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId && editPeriods.length === 0) {
+    
+    if (!editingId) return;
+    
+    // Check if category changed and if new category already has a timetable
+    const currentTimetable = timetables?.find(t => t.id === editingId);
+    if (currentTimetable && editCategory !== currentTimetable.category) {
+      if (timetables?.some(t => t.category === editCategory)) {
+        toast({ 
+          title: "Error", 
+          description: `A timetable already exists for ${editCategory}. Cannot update to a batch that already has a timetable.`, 
+          variant: "destructive" 
+        });
+        return;
+      }
+    }
+    
+    if (editPeriods.length === 0) {
       toast({ title: "Error", description: "Add at least one period", variant: "destructive" });
       return;
     }
-    if (editingId) {
-      updateMutation.mutate({ id: editingId, category: editCategory, periods: JSON.stringify(editPeriods) });
+    
+    // Check for empty fields
+    const hasEmptyFields = editPeriods.some(p => !p.name?.trim() || !p.time?.trim());
+    if (hasEmptyFields) {
+      toast({ title: "Error", description: "All periods must have a name and time", variant: "destructive" });
+      return;
     }
+    
+    updateMutation.mutate({ id: editingId, category: editCategory, periods: JSON.stringify(editPeriods) });
   };
 
   return (

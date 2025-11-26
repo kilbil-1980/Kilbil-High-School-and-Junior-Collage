@@ -104,7 +104,26 @@ export const insertFacultySchema = createInsertSchema(faculty).omit({ id: true, 
   photo: z.string().optional(),
   order: z.number().optional().default(0),
 });
-export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: true });
+export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: true }).extend({
+  category: z.enum(["Morning Batch", "Afternoon Batch", "Junior College"]).refine(
+    (val) => val && val.trim() !== "",
+    "Category is required"
+  ),
+  periods: z.string().refine(
+    (val) => {
+      try {
+        const periods = JSON.parse(val) as Period[];
+        // Check that at least one period exists
+        if (periods.length === 0) return false;
+        // Check that all periods have non-empty name and time
+        return periods.every(p => p.name && p.name.trim() !== "" && p.time && p.time.trim() !== "");
+      } catch {
+        return false;
+      }
+    },
+    "All periods must have a name and time"
+  ),
+});
 export const insertAdmissionSchema = createInsertSchema(admissions).omit({ id: true }).extend({
   lastSchool: z.string().optional(),
   birthCertificate: z.string().optional(),
