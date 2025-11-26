@@ -17,6 +17,7 @@ import PrincipalMessage from "@/pages/PrincipalMessage";
 import WhyUs from "@/pages/WhyUs";
 import FacultyPage from "@/pages/Faculty";
 import FacultyDetail from "@/pages/FacultyDetail";
+import Academics from "@/pages/Academics";
 import AcademicLevel from "@/pages/AcademicLevel";
 import Timetable from "@/pages/Timetable";
 import Admissions from "@/pages/Admissions";
@@ -41,6 +42,7 @@ function Router({ isAdminLoggedIn }: { isAdminLoggedIn: boolean }) {
       <Route path="/about/faculty" component={FacultyPage} />
       <Route path="/faculty/:id" component={FacultyDetail} />
       
+      <Route path="/academics" component={Academics} />
       <Route path="/academics/elementary">
         {() => <AcademicLevel level="elementary" />}
       </Route>
