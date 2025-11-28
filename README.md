@@ -95,7 +95,8 @@ kilbil-school-website/
 │       │   ├── Admissions.tsx        # Admission form page
 │       │   ├── Faculty.tsx           # Faculty listing page
 │       │   ├── FacultyDetail.tsx     # Individual faculty profile
-│       │   ├── AcademicLevel.tsx     # Academic levels (Elementary, Primary, Secondary, Higher Secondary)
+│       │   ├── Academics.tsx         # Academics hub page (4 academic levels overview)
+│       │   ├── AcademicLevel.tsx     # Individual level pages with photogenic images
 │       │   ├── Timetable.tsx         # Student timetable page
 │       │   ├── Facilities.tsx        # School facilities page
 │       │   ├── Gallery.tsx           # Image gallery page
@@ -176,10 +177,37 @@ kilbil-school-website/
 - **Why Us** - Unique value propositions and differentiators
 
 #### Academics
-- **Elementary Section** - Classes 1-2
-- **Primary Section** - Classes 3-5
-- **Secondary Section** - Classes 6-8
-- **Higher Secondary Section** - Classes 9-12, Junior College
+- **Academics Hub Page** (`/academics`) - Overview of all academic levels
+  - Interactive level cards with photogenic classroom images
+  - Color-coded sections (Blue, Green, Purple, Orange)
+  - Expandable feature highlights for each level
+  - School highlights section with 4 key differentiators
+  - Call-to-action buttons for enrollment
+
+- **Elementary Section** (`/academics/elementary`) - Classes 1-4, Ages 6-10
+  - AI-generated classroom imagery
+  - Foundational learning & character development
+  - Interactive curriculum cards with icons
+  - Teaching philosophy highlighting play-based learning
+  - Navigate directly to admissions from page
+
+- **Primary Section** (`/academics/primary`) - Classes 5-7, Ages 10-13
+  - Interactive learning & skill building
+  - Project-based learning approach
+  - Subject specialization introduction
+  - Leadership qualities development focus
+
+- **Secondary Section** (`/academics/secondary`) - Classes 8-10, Ages 13-16
+  - Advanced studies & STEM specialization
+  - Laboratory-based learning with real-world problems
+  - Board exam preparation
+  - Career guidance integration
+
+- **Higher Secondary Section** (`/academics/higher-secondary`) - Classes 11-12, Ages 16-18
+  - College-level excellence
+  - Stream-based education (Science, Commerce, Arts)
+  - Competitive exam preparation
+  - Professional skill development and college counseling
 
 #### Faculty Directory
 - Complete faculty listing with photos
@@ -280,9 +308,11 @@ kilbil-school-website/
 
 **Announcements**
 - Create, edit, delete announcements
+- **Edit announcements** - Inline editing with cancel options
 - Title and content management
 - Priority settings for ticker ordering
 - Automatic timestamp tracking
+- Recently added announcements appear first in admin panel
 
 **Faculty Management**
 - Add new faculty members
@@ -292,6 +322,7 @@ kilbil-school-website/
 - Bio/description editing
 - Faculty ordering/sequencing
 - Delete faculty records
+- **Edit functionality** - Inline editing with cancel options
 
 **Timetables**
 - Create timetable for different batches:
@@ -328,9 +359,10 @@ kilbil-school-website/
 **Career Management**
 - Post job openings
 - Title, description, qualifications, experience
-- Edit job postings
+- **Edit job postings** - Inline editing preserves creation dates
 - Delete with confirmation dialog
 - Display on public career page
+- Recently added jobs appear first in admin panel
 
 **Testimonials Management**
 - Add student/parent testimonials
