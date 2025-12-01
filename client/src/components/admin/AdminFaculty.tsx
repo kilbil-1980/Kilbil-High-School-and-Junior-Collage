@@ -36,10 +36,10 @@ export function AdminFaculty() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const ITEMS_PER_PAGE = 12;
 
   const { data: allFacultyList = [] } = useQuery<Faculty[]>({
-    queryKey: ["/api/faculty"],
+    queryKey: ["/api/faculty?limit=1000"],
   });
 
   const filteredList = allFacultyList
@@ -49,9 +49,9 @@ export function AdminFaculty() {
     )
     .reverse(); // Recently added first
 
-  const totalPages = Math.ceil(filteredList.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const facultyList = filteredList.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filteredList.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const facultyList = filteredList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => 
@@ -309,31 +309,49 @@ export function AdminFaculty() {
                 ))}
               </div>
 
-              {filteredList.length > itemsPerPage && (
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    Page {currentPage} of {totalPages} ({filteredList.length} total)
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      data-testid="button-prev-page"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      data-testid="button-next-page"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
+              {filteredList.length > ITEMS_PER_PAGE && (
+                <div className="flex items-center justify-center gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    data-testid="button-prev-page"
+                    className="rounded-full"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: totalPages }).map((_, i) => {
+                      const pageNum = i + 1;
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(pageNum)}
+                          data-testid={`button-page-${pageNum}`}
+                          className="rounded-full"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
                   </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    data-testid="button-next-page"
+                    className="rounded-full"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
                 </div>
               )}
             </div>
