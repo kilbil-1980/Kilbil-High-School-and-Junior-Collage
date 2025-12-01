@@ -5,7 +5,6 @@ import { Shield, Lock } from "lucide-react";
 import { AdminAnnouncements } from "@/components/admin/AdminAnnouncements";
 import { AdminFaculty } from "@/components/admin/AdminFaculty";
 import { AdminTimetables } from "@/components/admin/AdminTimetables";
-import { AdminAdmissions } from "@/components/admin/AdminAdmissions";
 import { AdminGallery } from "@/components/admin/AdminGallery";
 import { AdminFacilities } from "@/components/admin/AdminFacilities";
 import { AdminCareer } from "@/components/admin/AdminCareer";
@@ -74,7 +73,6 @@ export default function Admin() {
             <TabsTrigger value="announcements" data-testid="tab-announcements" className="text-xs sm:text-sm whitespace-nowrap">Announce</TabsTrigger>
             <TabsTrigger value="faculty" data-testid="tab-faculty" className="text-xs sm:text-sm whitespace-nowrap">Faculty</TabsTrigger>
             <TabsTrigger value="timetables" data-testid="tab-timetables" className="text-xs sm:text-sm whitespace-nowrap">Timetable</TabsTrigger>
-            <TabsTrigger value="admissions" data-testid="tab-admissions" className="text-xs sm:text-sm whitespace-nowrap">Admissions</TabsTrigger>
             <TabsTrigger value="gallery" data-testid="tab-gallery" className="text-xs sm:text-sm whitespace-nowrap">Gallery</TabsTrigger>
             <TabsTrigger value="facilities" data-testid="tab-facilities" className="text-xs sm:text-sm whitespace-nowrap">Facility</TabsTrigger>
             <TabsTrigger value="career" data-testid="tab-career" className="text-xs sm:text-sm whitespace-nowrap">Career</TabsTrigger>
@@ -97,10 +95,6 @@ export default function Admin() {
 
           <TabsContent value="timetables">
             <AdminTimetables />
-          </TabsContent>
-
-          <TabsContent value="admissions">
-            <AdminAdmissions />
           </TabsContent>
 
           <TabsContent value="gallery">

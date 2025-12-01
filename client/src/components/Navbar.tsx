@@ -139,13 +139,11 @@ export function Navbar() {
             </NavigationMenu>
 
             <Button 
-              variant={isActive("/admissions") ? "secondary" : "ghost"} 
               size="sm"
               asChild
               className="text-sm"
               data-testid="button-nav-admissions"
             >
-              <Link href="/admissions">Admissions</Link>
             </Button>
 
             <Button 
@@ -322,7 +320,6 @@ export function Navbar() {
             </div>
 
             <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admissions">
-              <Link href="/admissions">Admissions</Link>
             </Button>
             <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-facilities">
               <Link href="/facilities">Facilities</Link>

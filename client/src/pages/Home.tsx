@@ -34,7 +34,6 @@ export default function Home() {
             Nurturing Young Minds Since 1980
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/admissions">
               <Button size="lg" variant="default" className="bg-primary border border-primary-border" data-testid="button-apply-now">
                 Apply Now
               </Button>
@@ -95,11 +94,9 @@ export default function Home() {
               </Card>
             </Link>
 
-            <Link href="/admissions">
               <Card className="hover-elevate active-elevate-2 cursor-pointer h-full" data-testid="card-admissions">
                 <CardHeader>
                   <Users className="w-10 h-10 mb-3 text-secondary" />
-                  <CardTitle>Admissions</CardTitle>
                   <CardDescription>
                     Join our community and start your educational journey
                   </CardDescription>

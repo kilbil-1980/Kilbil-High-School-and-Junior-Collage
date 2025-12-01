@@ -20,7 +20,6 @@ import FacultyDetail from "@/pages/FacultyDetail";
 import Academics from "@/pages/Academics";
 import AcademicLevel from "@/pages/AcademicLevel";
 import Timetable from "@/pages/Timetable";
-import Admissions from "@/pages/Admissions";
 import Facilities from "@/pages/Facilities";
 import Gallery from "@/pages/Gallery";
 import Career from "@/pages/Career";
@@ -57,7 +56,6 @@ function Router({ isAdminLoggedIn }: { isAdminLoggedIn: boolean }) {
       </Route>
       
       <Route path="/timetable" component={Timetable} />
-      <Route path="/admissions" component={Admissions} />
       <Route path="/facilities" component={Facilities} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/career" component={Career} />

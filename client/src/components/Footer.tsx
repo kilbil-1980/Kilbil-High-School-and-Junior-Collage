@@ -26,8 +26,6 @@ export function Footer() {
               <Link href="/academics/elementary" className="block text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-academics">
                 Academics
               </Link>
-              <Link href="/admissions" className="block text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-admissions">
-                Admissions
               </Link>
               <Link href="/facilities" className="block text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-facilities">
                 Facilities

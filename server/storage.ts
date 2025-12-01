@@ -8,7 +8,6 @@ import type {
   Announcement, InsertAnnouncement,
   Faculty, InsertFaculty,
   Timetable, InsertTimetable,
-  Admission, InsertAdmission,
   GalleryImage, InsertGalleryImage,
   Facility, InsertFacility,
   Testimonial, InsertTestimonial,
@@ -39,12 +38,6 @@ export interface IStorage {
   createTimetable(timetable: InsertTimetable): Promise<Timetable>;
   updateTimetable(id: string, timetable: InsertTimetable): Promise<Timetable>;
   deleteTimetable(id: string): Promise<void>;
-
-  getAdmissions(): Promise<Admission[]>;
-  createAdmission(admission: InsertAdmission): Promise<Admission>;
-  deleteAdmission(id: string): Promise<void>;
-  getAdmission(id: string): Promise<Admission | undefined>;
-  deleteAllAdmissions(): Promise<void>;
 
   getGalleryImages(): Promise<GalleryImage[]>;
   createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage>;
@@ -145,39 +138,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(schema.timetables).where(eq(schema.timetables.id, id));
   }
 
-  async getAdmissions(): Promise<Admission[]> {
-    try {
-      const results = await db.select().from(schema.admissions).orderBy(desc(schema.admissions.submittedAt));
-      return results;
-    } catch (error) {
-      console.error("[getAdmissions] Database error:", error);
-      throw error;
-    }
-  }
-
-  async createAdmission(admission: InsertAdmission): Promise<Admission> {
-    const [result] = await db.insert(schema.admissions).values({
-      id: randomUUID(),
-      ...admission,
-      submittedAt: new Date(),
-    }).returning();
-    return result;
-  }
-
-  async deleteAdmission(id: string): Promise<void> {
-    await db.delete(schema.admissions).where(eq(schema.admissions.id, id));
-  }
-
-  async getAdmission(id: string): Promise<Admission | undefined> {
-    const results = await db.select().from(schema.admissions).where(eq(schema.admissions.id, id));
-    return results && results.length > 0 ? results[0] : undefined;
-  }
-
-  async deleteAllAdmissions(): Promise<void> {
-    await db.delete(schema.admissions);
-  }
-
-  async getGalleryImages(): Promise<GalleryImage[]> {
+async getGalleryImages(): Promise<GalleryImage[]> {
     const results = await db.select().from(schema.galleryImages).orderBy(desc(schema.galleryImages.uploadedAt));
     return results;
   }

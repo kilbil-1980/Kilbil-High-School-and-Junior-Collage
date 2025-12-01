@@ -35,22 +35,6 @@ export const timetables = pgTable("timetables", {
   periods: text("periods").notNull(),
 });
 
-export const admissions = pgTable("admissions", {
-  id: varchar("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone").notNull(),
-  className: text("class_name").notNull(),
-  lastSchool: text("last_school"),
-  birthCertificateUrl: text("birth_certificate_url"),
-  reportCardUrl: text("report_card_url"),
-  transferCertificateUrl: text("transfer_certificate_url"),
-  photographsUrl: text("photographs_url"),
-  addressProofUrl: text("address_proof_url"),
-  parentIdProofUrl: text("parent_id_proof_url"),
-  submittedAt: timestamp("submitted_at").notNull(),
-});
-
 export const careers = pgTable("careers", {
   id: varchar("id").primaryKey(),
   title: text("title").notNull(),
@@ -124,16 +108,6 @@ export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: t
     "All periods must have a name and time"
   ),
 });
-export const insertAdmissionSchema = createInsertSchema(admissions).omit({ id: true }).extend({
-  lastSchool: z.string().optional(),
-  birthCertificateUrl: z.string().optional(),
-  reportCardUrl: z.string().optional(),
-  transferCertificateUrl: z.string().optional(),
-  photographsUrl: z.string().optional(),
-  addressProofUrl: z.string().optional(),
-  parentIdProofUrl: z.string().optional(),
-});
-
 export const insertCareerSchema = createInsertSchema(careers).omit({ id: true, createdAt: true }).extend({
   qualifications: z.string().optional(),
   experience: z.string().optional(),
@@ -168,9 +142,6 @@ export type InsertFaculty = z.infer<typeof insertFacultySchema>;
 
 export type Timetable = typeof timetables.$inferSelect;
 export type InsertTimetable = z.infer<typeof insertTimetableSchema>;
-
-export type Admission = typeof admissions.$inferSelect;
-export type InsertAdmission = z.infer<typeof insertAdmissionSchema>;
 
 export type Career = typeof careers.$inferSelect;
 export type InsertCareer = z.infer<typeof insertCareerSchema>;
