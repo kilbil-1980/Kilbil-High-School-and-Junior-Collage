@@ -38,11 +38,23 @@ export function AdminGallery() {
   const [filterCategory, setFilterCategory] = useState("all");
   const itemsPerPage = 12;
 
-  const { data } = useQuery<{ images: GalleryImage[]; pagination: any }>({
-    queryKey: ["/api/gallery?limit=1000"],
+  const { data } = useQuery<{ images: GalleryImage[]; pagination: any } | GalleryImage[]>({
+    queryKey: ["/api/gallery", "all"],
+    queryFn: async () => {
+      const res = await fetch("/api/gallery?limit=1000", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch gallery");
+      const data = await res.json();
+      // Handle both array format and object with pagination
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return data;
+    },
   });
 
-  const allImages = (data?.images || []).sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
+  const galleryData = Array.isArray(data) ? { images: data } : data;
+
+  const allImages = (galleryData && !Array.isArray(galleryData) ? galleryData.images : galleryData || []).sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
   const categories = ["all", ...Array.from(new Set(allImages.map((img) => img.category)))];
   
   const filteredImages = filterCategory === "all" 
@@ -63,8 +75,9 @@ export function AdminGallery() {
       setFormData({ category: "", imageUrl: "", caption: "" });
       setEditingId(null);
       setCurrentPage(1);
-      // Invalidate all gallery-related queries
+      // Invalidate and refetch gallery queries
       queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
+      queryClient.refetchQueries({ queryKey: ["/api/gallery", "all"] });
     },
   });
 
@@ -73,8 +86,9 @@ export function AdminGallery() {
     onSuccess: () => {
       toast({ title: "Success", description: "Image removed from gallery" });
       setDeleteConfirm(null);
-      // Invalidate all gallery-related queries
+      // Invalidate and refetch gallery queries
       queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
+      queryClient.refetchQueries({ queryKey: ["/api/gallery", "all"] });
     },
   });
 
