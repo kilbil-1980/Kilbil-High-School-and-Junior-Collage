@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import type { Faculty } from "@shared/schema";
 import defaultAvatar from "@assets/generated_images/default_faculty_avatar.png";
 import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
+import { BookOpen, Award } from "lucide-react";
 
 export default function FacultyPage() {
   useEffect(() => {
@@ -61,38 +62,43 @@ export default function FacultyPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {facultyList.map((member) => (
               <Link key={member.id} href={`/faculty/${member.id}`}>
-                <Card className="hover-elevate active-elevate-2 cursor-pointer h-full flex flex-col" data-testid={`card-faculty-${member.id}`}>
-                  <CardHeader className="pb-2 pt-3 px-4">
-                    <div className="flex flex-col items-center">
-                      <Avatar className="w-16 h-16 mb-2">
+                <Card className="hover-elevate active-elevate-2 cursor-pointer h-full flex flex-col overflow-hidden" data-testid={`card-faculty-${member.id}`}>
+                  <CardHeader className="bg-gradient-to-b from-primary/5 to-transparent pb-4 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <Avatar className="w-24 h-24 border-2 border-primary/20">
                         <AvatarImage src={member.photo || defaultAvatar} alt={member.name} />
                         <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                       </Avatar>
-                      <CardTitle className="text-center text-base">{member.name}</CardTitle>
+                      <div className="space-y-2 w-full">
+                        <h3 className="font-bold text-lg leading-tight">{member.name}</h3>
+                        <Badge variant="outline" className="mx-auto">
+                          <BookOpen className="w-3 h-3 mr-1" />
+                          {member.subject}
+                        </Badge>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="flex-1 px-4 py-2">
-                    <div className="space-y-1 text-xs">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-semibold text-muted-foreground text-xs">Subject:</span>
-                        <span className="text-sm">{member.subject}</span>
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-semibold text-muted-foreground text-xs">Qualification:</span>
-                        <span className="text-sm">{member.qualification}</span>
+                  <CardContent className="flex-1 space-y-4 pt-4">
+                    <div className="space-y-3">
+                      <div className="pb-3 border-b">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Qualification</p>
+                        <p className="text-sm font-medium">{member.qualification}</p>
                       </div>
                       {member.experience && (
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-semibold text-muted-foreground text-xs">Experience:</span>
-                          <span className="text-sm">{member.experience}</span>
+                        <div className="pb-3 border-b">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1 flex items-center gap-1">
+                            <Award className="w-3 h-3" />
+                            Experience
+                          </p>
+                          <p className="text-sm font-medium">{member.experience}</p>
                         </div>
                       )}
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-semibold text-muted-foreground text-xs">Bio:</span>
-                        <span className="text-xs line-clamp-1">{member.bio}</span>
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">About</p>
+                        <p className="text-sm text-muted-foreground line-clamp-3">{member.bio}</p>
                       </div>
                     </div>
                   </CardContent>
