@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2, Edit2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Faculty } from "@shared/schema";
+import defaultAvatar from "@assets/generated_images/default_faculty_avatar.png";
 
 export function AdminFaculty() {
   const { toast } = useToast();
@@ -248,42 +250,62 @@ export function AdminFaculty() {
             </p>
           ) : (
             <div className="space-y-4">
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {facultyList.map((faculty) => (
-                  <div key={faculty.id} className="border rounded-md p-4" data-testid={`faculty-${faculty.id}`}>
-                    <div className="flex justify-between items-start gap-3 mb-2">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{faculty.name}</h4>
-                        <p className="text-sm text-primary">{faculty.subject}</p>
-                        {faculty.photo && (
-                          <img
-                            src={faculty.photo}
-                            alt={faculty.name}
-                            className="w-full h-24 object-cover rounded-md mt-2"
-                          />
-                        )}
+                  <Card key={faculty.id} className="hover-elevate active-elevate-2" data-testid={`faculty-${faculty.id}`}>
+                    <CardHeader className="pb-3">
+                      <div className="flex flex-col items-center">
+                        <Avatar className="w-20 h-20 mb-3">
+                          <AvatarImage src={faculty.photo || defaultAvatar} alt={faculty.name} />
+                          <AvatarFallback>{faculty.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <CardTitle className="text-center text-lg">{faculty.name}</CardTitle>
                       </div>
-                      <div className="flex gap-2">
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-semibold text-muted-foreground">Subject:</span>
+                          <span>{faculty.subject}</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="font-semibold text-muted-foreground">Qualification:</span>
+                          <span>{faculty.qualification}</span>
+                        </div>
+                        {faculty.experience && (
+                          <div className="flex flex-col gap-1">
+                            <span className="font-semibold text-muted-foreground">Experience:</span>
+                            <span>{faculty.experience}</span>
+                          </div>
+                        )}
+                        <div className="flex flex-col gap-1">
+                          <span className="font-semibold text-muted-foreground">Bio:</span>
+                          <span className="text-xs line-clamp-2">{faculty.bio}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-2 border-t">
                         <Button
                           variant="outline"
-                          size="icon"
+                          size="sm"
                           onClick={() => handleEdit(faculty)}
                           data-testid={`button-edit-faculty-${faculty.id}`}
+                          className="flex-1"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-4 h-4 mr-1" />
+                          Edit
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           onClick={() => setDeleteConfirm(faculty.id)}
                           data-testid={`button-delete-faculty-${faculty.id}`}
                         >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{faculty.qualification} | {faculty.experience}</p>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
 
