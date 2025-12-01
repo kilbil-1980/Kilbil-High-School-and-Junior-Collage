@@ -33,24 +33,21 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-soft-white py-16">
+    <div className="min-h-screen bg-background py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <div className="inline-block mb-4 px-4 py-2 bg-pale-beige rounded-full border border-golden-yellow/30">
-            <span className="text-royal-blue font-semibold text-sm">Contact Us</span>
-          </div>
-          <h1 className="text-5xl font-bold mb-4 text-royal-blue" data-testid="text-page-title">Get in Touch</h1>
-          <p className="text-lg text-slate-gray">
-            Reach out for admissions, queries, or information
+          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Contact Us</h1>
+          <p className="text-lg text-muted-foreground">
+            Get in touch with us for any queries or information
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           <div className="space-y-6">
-            <Card className="border-l-4" style={{borderLeftColor: '#1E3A8A'}}>
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-royal-blue">
-                  <MapPin className="w-5 h-5" style={{color: '#1E3A8A'}} />
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
                   Address
                 </CardTitle>
               </CardHeader>
@@ -63,10 +60,10 @@ export default function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4" style={{borderLeftColor: '#DC4A38'}}>
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-terracotta">
-                  <Phone className="w-5 h-5" style={{color: '#DC4A38'}} />
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="w-5 h-5 text-primary" />
                   Phone
                 </CardTitle>
               </CardHeader>
@@ -81,10 +78,10 @@ export default function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4" style={{borderLeftColor: '#0EA5E9'}}>
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2" style={{color: '#0EA5E9'}}>
-                  <Mail className="w-5 h-5" style={{color: '#0EA5E9'}} />
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-primary" />
                   Email
                 </CardTitle>
               </CardHeader>
@@ -99,10 +96,10 @@ export default function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4" style={{borderLeftColor: '#FCD34D'}}>
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-royal-blue">
-                  <Clock className="w-5 h-5" style={{color: '#FCD34D'}} />
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
                   Working Hours
                 </CardTitle>
               </CardHeader>
@@ -117,7 +114,7 @@ export default function Contact() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-royal-blue">Send us a Message</CardTitle>
+              <CardTitle>Send us a Message</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -159,7 +156,7 @@ export default function Contact() {
                   />
                 </div>
 
-                <Button type="submit" size="lg" className="w-full bg-royal-blue text-white hover:bg-terracotta" data-testid="button-send">
+                <Button type="submit" size="lg" className="w-full" data-testid="button-send">
                   Send Message
                 </Button>
               </form>
