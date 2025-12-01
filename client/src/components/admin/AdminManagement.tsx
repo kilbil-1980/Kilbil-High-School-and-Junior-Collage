@@ -43,7 +43,7 @@ export function AdminManagement() {
   const adminUsers = adminUsersData?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const createMutation = useMutation({
-    mutationFn: (data: { username: string; password: string }) => 
+    mutationFn: (data: { username: string; password: string; role: string }) => 
       apiRequest("POST", "/api/admin/create-user", data),
     onSuccess: () => {
       toast({ title: "Success", description: "Admin user created successfully" });
@@ -100,7 +100,7 @@ export function AdminManagement() {
       toast({ title: "Error", description: "Username and password are required", variant: "destructive" });
       return;
     }
-    createMutation.mutate(formData);
+    createMutation.mutate({ ...formData, role: "sub-admin" });
   };
 
   const handleMasterAdminUpdate = (username: string) => {
