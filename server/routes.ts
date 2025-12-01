@@ -282,6 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         photographsUrl: req.body.photographsUrl || undefined,
         addressProofUrl: req.body.addressProofUrl || undefined,
         parentIdProofUrl: req.body.parentIdProofUrl || undefined,
+        submittedAt: new Date(),
       };
 
       const parsed = insertAdmissionSchema.parse(admissionData);
