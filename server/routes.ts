@@ -204,33 +204,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admissions", upload.fields([
-    { name: 'birthCertificate', maxCount: 1 },
-    { name: 'reportCard', maxCount: 1 },
-    { name: 'transferCertificate', maxCount: 1 },
-    { name: 'photographs', maxCount: 1 },
-    { name: 'addressProof', maxCount: 1 },
-    { name: 'parentIdProof', maxCount: 1 }
-  ]), async (req, res) => {
+  // Upload single file temporarily
+  app.post("/api/admissions/upload-file", upload.single("file"), async (req, res) => {
     try {
-      const files = req.files as any || {};
+      if (!req.file) {
+        return res.status(400).json({ message: "No file provided" });
+      }
+
+      const fileId = randomUUID();
+      const base64Data = req.file.buffer.toString('base64');
+      const dataUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      
+      res.json({ url: dataUrl, fileId });
+    } catch (error: any) {
+      console.error("File upload error:", error);
+      res.status(400).json({ message: error?.message || "Failed to upload file" });
+    }
+  });
+
+  // Generate email mailto link
+  app.post("/api/admissions/generate-email", async (req, res) => {
+    try {
+      const { name, email, phone, className, lastSchool, fileUrls } = req.body;
+      const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
+
+      let emailBody = `New Admission Application\n\n`;
+      emailBody += `Student Name: ${name}\n`;
+      emailBody += `Email: ${email}\n`;
+      emailBody += `Phone: ${phone}\n`;
+      emailBody += `Class Applying For: ${className}\n`;
+      if (lastSchool) {
+        emailBody += `Last School: ${lastSchool}\n`;
+      }
+      emailBody += `\nDocument Links:\n`;
+      
+      if (fileUrls?.birthCertificate) {
+        emailBody += `Birth Certificate: ${fileUrls.birthCertificate}\n`;
+      }
+      if (fileUrls?.reportCard) {
+        emailBody += `Report Card: ${fileUrls.reportCard}\n`;
+      }
+      if (fileUrls?.transferCertificate) {
+        emailBody += `Transfer Certificate: ${fileUrls.transferCertificate}\n`;
+      }
+      if (fileUrls?.photographs) {
+        emailBody += `Photographs: ${fileUrls.photographs}\n`;
+      }
+      if (fileUrls?.addressProof) {
+        emailBody += `Address Proof: ${fileUrls.addressProof}\n`;
+      }
+      if (fileUrls?.parentIdProof) {
+        emailBody += `Parent ID Proof: ${fileUrls.parentIdProof}\n`;
+      }
+
+      const subject = `New Admission Request — ${name}`;
+      const mailtoLink = `mailto:${adminEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+      
+      res.json({ mailtoLink });
+    } catch (error: any) {
+      console.error("Email generation error:", error);
+      res.status(400).json({ message: error?.message || "Failed to generate email" });
+    }
+  });
+
+  // Submit admission with URLs (JSON-based)
+  app.post("/api/admissions", async (req, res) => {
+    try {
       const admissionData = {
         name: req.body.name,
         email: req.body.email,
         phone: req.body.phone,
         className: req.body.className,
-        lastSchool: req.body.lastSchool,
-        birthCertificate: files.birthCertificate ? files.birthCertificate[0].buffer.toString('base64') : undefined,
-        reportCard: files.reportCard ? files.reportCard[0].buffer.toString('base64') : undefined,
-        transferCertificate: files.transferCertificate ? files.transferCertificate[0].buffer.toString('base64') : undefined,
-        photographs: files.photographs ? files.photographs[0].buffer.toString('base64') : undefined,
-        addressProof: files.addressProof ? files.addressProof[0].buffer.toString('base64') : undefined,
-        parentIdProof: files.parentIdProof ? files.parentIdProof[0].buffer.toString('base64') : undefined,
-        submittedAt: new Date(),
+        lastSchool: req.body.lastSchool || undefined,
+        birthCertificateUrl: req.body.birthCertificateUrl || undefined,
+        reportCardUrl: req.body.reportCardUrl || undefined,
+        transferCertificateUrl: req.body.transferCertificateUrl || undefined,
+        photographsUrl: req.body.photographsUrl || undefined,
+        addressProofUrl: req.body.addressProofUrl || undefined,
+        parentIdProofUrl: req.body.parentIdProofUrl || undefined,
       };
 
       const parsed = insertAdmissionSchema.parse(admissionData);
       const admission = await storage.createAdmission(parsed);
+      await logAuditEvent(req, "CREATE", "admissions", admission.id, null, admission);
       res.status(201).json(admission);
     } catch (error: any) {
       console.error("Admission error:", error);
