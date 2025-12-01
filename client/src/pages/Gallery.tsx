@@ -30,13 +30,14 @@ export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const ITEMS_PER_PAGE = 30;
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
 
   const { data: galleryData, isLoading } = useQuery<GalleryResponse>({
-    queryKey: ["/api/gallery", selectedCategory],
+    queryKey: ["/api/gallery", selectedCategory, currentPage],
     queryFn: async () => {
       const params = new URLSearchParams({
-        page: "1",
+        page: String(currentPage),
         limit: String(ITEMS_PER_PAGE),
         ...(selectedCategory !== "all" && { category: selectedCategory }),
       });
@@ -131,7 +132,10 @@ export default function Gallery() {
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => {
+                setSelectedCategory(category);
+                setCurrentPage(1);
+              }}
               data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
               className="rounded-full capitalize"
             >
@@ -147,33 +151,82 @@ export default function Gallery() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {images.map((image) => (
-              <div
-                key={image.id}
-                className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
-                onClick={() => handleImageClick(image)}
-                data-testid={`card-image-${image.id}`}
-              >
-                <div className="overflow-hidden h-72">
-                  <img
-                    src={image.imageUrl}
-                    alt={image.caption || "Gallery image"}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                  <div className="p-4 text-white w-full">
-                    {image.caption && (
-                      <h3 className="text-lg font-bold mb-1">{image.caption}</h3>
-                    )}
-                    <p className="text-sm text-gray-200 capitalize">{image.category}</p>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {images.map((image) => (
+                <div
+                  key={image.id}
+                  className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
+                  onClick={() => handleImageClick(image)}
+                  data-testid={`card-image-${image.id}`}
+                >
+                  <div className="overflow-hidden h-72">
+                    <img
+                      src={image.imageUrl}
+                      alt={image.caption || "Gallery image"}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                    <div className="p-4 text-white w-full">
+                      {image.caption && (
+                        <h3 className="text-lg font-bold mb-1">{image.caption}</h3>
+                      )}
+                      <p className="text-sm text-gray-200 capitalize">{image.category}</p>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {galleryData?.pagination && galleryData.pagination.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  data-testid="button-prev-page"
+                  className="rounded-full"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: galleryData.pagination.totalPages }).map((_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        data-testid={`button-page-${pageNum}`}
+                        className="rounded-full"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(galleryData.pagination.totalPages, p + 1))}
+                  disabled={!galleryData.pagination.hasMore}
+                  data-testid="button-next-page"
+                  className="rounded-full"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 
