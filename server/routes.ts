@@ -274,7 +274,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const page = Math.max(1, parseInt(req.query.page as string) || 1);
       const limit = Math.max(1, parseInt(req.query.limit as string) || 12);
       
-      const allFacilities = await storage.getFacilities();
+      let allFacilities = await storage.getFacilities();
+      // Show newest facilities first
+      allFacilities = [...allFacilities].reverse();
+      
       const total = allFacilities.length;
       const totalPages = Math.ceil(total / limit);
       const startIndex = (page - 1) * limit;

@@ -186,7 +186,7 @@ export function AdminFacilities() {
           <CardTitle>Current Facilities</CardTitle>
         </CardHeader>
         <CardContent>
-          {allFacilities.length === 0 ? (
+          {pagination && pagination.total === 0 ? (
             <p className="text-muted-foreground text-center py-8" data-testid="text-no-facilities">
               No facilities added yet
             </p>
