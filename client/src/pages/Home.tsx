@@ -34,10 +34,6 @@ export default function Home() {
             Nurturing Young Minds Since 1980
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" variant="default" className="bg-primary border border-primary-border" data-testid="button-apply-now">
-                Apply Now
-              </Button>
-            </Link>
             <Link href="/about/why-us">
               <Button size="lg" variant="outline" className="bg-background/20 backdrop-blur-sm border-white/30 text-white hover:bg-background/30" data-testid="button-learn-more">
                 Learn More
@@ -89,16 +85,6 @@ export default function Home() {
                   <CardTitle>Academics</CardTitle>
                   <CardDescription>
                     Comprehensive curriculum from Elementary to Higher Secondary
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-              <Card className="hover-elevate active-elevate-2 cursor-pointer h-full" data-testid="card-admissions">
-                <CardHeader>
-                  <Users className="w-10 h-10 mb-3 text-secondary" />
-                  <CardDescription>
-                    Join our community and start your educational journey
                   </CardDescription>
                 </CardHeader>
               </Card>

@@ -139,14 +139,6 @@ export function Navbar() {
             </NavigationMenu>
 
             <Button 
-              size="sm"
-              asChild
-              className="text-sm"
-              data-testid="button-nav-admissions"
-            >
-            </Button>
-
-            <Button 
               variant={isActive("/facilities") ? "secondary" : "ghost"} 
               size="sm"
               asChild
