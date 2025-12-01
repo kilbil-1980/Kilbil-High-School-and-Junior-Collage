@@ -38,11 +38,21 @@ export function AdminFaculty() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  const { data: facultyResponse } = useQuery<{ faculty: Faculty[] }>({
-    queryKey: ["/api/faculty", 1000],
+  const { data: facultyResponse } = useQuery<{ faculty: Faculty[] } | Faculty[]>({
+    queryKey: ["/api/faculty", "all"],
+    queryFn: async () => {
+      const res = await fetch("/api/faculty?limit=1000", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch faculty");
+      const data = await res.json();
+      // Handle both array format and object with pagination
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return data;
+    },
   });
 
-  const allFacultyList = facultyResponse?.faculty || [];
+  const allFacultyList = Array.isArray(facultyResponse) ? facultyResponse : facultyResponse?.faculty || [];
 
   const filteredList = allFacultyList
     .filter((f) =>
