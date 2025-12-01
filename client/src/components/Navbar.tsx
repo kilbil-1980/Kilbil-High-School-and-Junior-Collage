@@ -235,7 +235,7 @@ export function Navbar() {
                 asChild
                 data-testid="button-nav-admin-login"
               >
-                <Link href="/admin">Admin Login</Link>
+                <Link href="/admin">Admin</Link>
               </Button>
             )}
           </div>
@@ -359,7 +359,7 @@ export function Navbar() {
               </>
             ) : (
               <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admin-login">
-                <Link href="/admin">Admin Login</Link>
+                <Link href="/admin">Admin</Link>
               </Button>
             )}
           </div>
