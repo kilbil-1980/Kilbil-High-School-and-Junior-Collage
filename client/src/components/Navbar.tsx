@@ -208,7 +208,7 @@ export function Navbar() {
               </Button>
             </div>
 
-            {authStatus?.authenticated && (
+            {authStatus?.authenticated ? (
               <>
                 <Button 
                   variant={isActive("/admin") ? "secondary" : "ghost"} 
@@ -228,6 +228,15 @@ export function Navbar() {
                   <LogOut className="w-4 h-4" />
                 </Button>
               </>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                asChild
+                data-testid="button-nav-admin-login"
+              >
+                <Link href="/admin">Admin Login</Link>
+              </Button>
             )}
           </div>
 
@@ -339,7 +348,7 @@ export function Navbar() {
               </Link>
             </Button>
 
-            {authStatus?.authenticated && (
+            {authStatus?.authenticated ? (
               <>
                 <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admin">
                   <Link href="/admin">Admin</Link>
@@ -348,6 +357,10 @@ export function Navbar() {
                   Logout
                 </Button>
               </>
+            ) : (
+              <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => setMobileMenuOpen(false)} asChild data-testid="button-mobile-admin-login">
+                <Link href="/admin">Admin Login</Link>
+              </Button>
             )}
           </div>
         </div>
