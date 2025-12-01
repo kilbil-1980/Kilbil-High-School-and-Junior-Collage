@@ -204,30 +204,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Upload single file temporarily
-  app.post("/api/admissions/upload-file", upload.single("file"), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file provided" });
-      }
-
-      const fileId = randomUUID();
-      const base64Data = req.file.buffer.toString('base64');
-      const dataUrl = `data:${req.file.mimetype};base64,${base64Data}`;
-      
-      res.json({ url: dataUrl, fileId });
-    } catch (error: any) {
-      console.error("File upload error:", error);
-      res.status(400).json({ message: error?.message || "Failed to upload file" });
-    }
-  });
-
-  // Generate email mailto link
-  app.post("/api/admissions/generate-email", async (req, res) => {
+  app.post("/api/admissions/send-email", upload.single("file"), async (req, res) => {
     try {
       const { name, email, phone, className, lastSchool, fileUrls } = req.body;
-      const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
+      
+      if (!name || !email || !phone || !className) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
 
+      const admissionData = {
+        name,
+        email,
+        phone,
+        className,
+        lastSchool: lastSchool || undefined,
+        birthCertificateUrl: fileUrls?.birthCertificate || undefined,
+        reportCardUrl: fileUrls?.reportCard || undefined,
+        transferCertificateUrl: fileUrls?.transferCertificate || undefined,
+        photographsUrl: fileUrls?.photographs || undefined,
+        addressProofUrl: fileUrls?.addressProof || undefined,
+        parentIdProofUrl: fileUrls?.parentIdProof || undefined,
+      };
+
+      const parsed = insertAdmissionSchema.parse(admissionData);
+      const admission = await storage.createAdmission(parsed);
+      await logAuditEvent(req, "CREATE", "admissions", admission.id, null, admission);
+
+      const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
       let emailBody = `New Admission Application\n\n`;
       emailBody += `Student Name: ${name}\n`;
       emailBody += `Email: ${email}\n`;
@@ -260,38 +263,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const subject = `New Admission Request — ${name}`;
       const mailtoLink = `mailto:${adminEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
       
-      res.json({ mailtoLink });
+      res.json({ mailtoLink, admission });
     } catch (error: any) {
-      console.error("Email generation error:", error);
-      res.status(400).json({ message: error?.message || "Failed to generate email" });
+      console.error("Send email error:", error);
+      res.status(400).json({ message: error?.message || "Failed to send email" });
     }
   });
 
-  // Submit admission with URLs (JSON-based)
-  app.post("/api/admissions", async (req, res) => {
+  app.post("/api/admissions/upload-file", upload.single("file"), async (req, res) => {
     try {
-      const admissionData = {
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        className: req.body.className,
-        lastSchool: req.body.lastSchool || undefined,
-        birthCertificateUrl: req.body.birthCertificateUrl || undefined,
-        reportCardUrl: req.body.reportCardUrl || undefined,
-        transferCertificateUrl: req.body.transferCertificateUrl || undefined,
-        photographsUrl: req.body.photographsUrl || undefined,
-        addressProofUrl: req.body.addressProofUrl || undefined,
-        parentIdProofUrl: req.body.parentIdProofUrl || undefined,
-        submittedAt: new Date(),
-      };
+      if (!req.file) {
+        return res.status(400).json({ message: "No file provided" });
+      }
 
-      const parsed = insertAdmissionSchema.parse(admissionData);
-      const admission = await storage.createAdmission(parsed);
-      await logAuditEvent(req, "CREATE", "admissions", admission.id, null, admission);
-      res.status(201).json(admission);
+      const base64Data = req.file.buffer.toString('base64');
+      const dataUrl = `data:${req.file.mimetype};base64,${base64Data}`;
+      
+      res.json({ url: dataUrl });
     } catch (error: any) {
-      console.error("Admission error:", error);
-      res.status(400).json({ message: error?.message || "Invalid admission data" });
+      console.error("File upload error:", error);
+      res.status(400).json({ message: error?.message || "Failed to upload file" });
     }
   });
 
@@ -303,159 +294,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete admission" });
-    }
-  });
-
-  app.delete("/api/admissions/clear-all", async (req, res) => {
-    try {
-      const all = await storage.getAdmissions();
-      await storage.deleteAllAdmissions();
-      for (const admission of all) {
-        await logAuditEvent(req, "DELETE", "admissions", admission.id, admission, null);
-      }
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: "Failed to clear admissions" });
-    }
-  });
-
-  app.get("/api/admissions/download-all", async (req, res) => {
-    try {
-      const admissions = await storage.getAdmissions();
-      if (admissions.length === 0) {
-        return res.status(404).json({ message: "No admissions to download" });
-      }
-
-      res.setHeader('Content-Type', 'application/zip');
-      res.setHeader('Content-Disposition', `attachment; filename="all-admissions-${new Date().toISOString().split('T')[0]}.zip"`);
-
-      const archive = archiver('zip', { zlib: { level: 9 } });
-      archive.on('error', (err) => {
-        console.error('Archive error:', err);
-        res.status(500).json({ message: "Failed to create archive" });
-      });
-      archive.pipe(res);
-
-      const docMap: Record<string, string> = {
-        birthCertificate: 'birth-certificate',
-        reportCard: 'report-card',
-        transferCertificate: 'transfer-certificate',
-        photographs: 'photographs',
-        addressProof: 'address-proof',
-        parentIdProof: 'parent-id-proof'
-      };
-
-      let processed = 0;
-      for (const admission of admissions) {
-        const folder = `${admission.name}`;
-        
-        const pdfDoc = new PDFDocument();
-        const pdfChunks: Buffer[] = [];
-        pdfDoc.on('data', (chunk: Buffer) => pdfChunks.push(chunk));
-        pdfDoc.on('end', () => {
-          const pdfBuffer = Buffer.concat(pdfChunks);
-          archive.append(pdfBuffer, { name: `${folder}/applicant-details.pdf` });
-          
-          for (const [key, filename] of Object.entries(docMap)) {
-            const base64Data = admission[key as keyof typeof admission];
-            if (base64Data && typeof base64Data === 'string') {
-              const buffer = Buffer.from(base64Data, 'base64');
-              archive.append(buffer, { name: `${folder}/${filename}.bin` });
-            }
-          }
-
-          processed++;
-          if (processed === admissions.length) {
-            archive.finalize();
-          }
-        });
-
-        pdfDoc.fontSize(16).text('Admission Application Details', { underline: true });
-        pdfDoc.moveDown();
-        pdfDoc.fontSize(12);
-        pdfDoc.text(`Student Name: ${admission.name}`);
-        pdfDoc.text(`Email: ${admission.email}`);
-        pdfDoc.text(`Phone: ${admission.phone}`);
-        pdfDoc.text(`Class Applying For: ${admission.className}`);
-        if (admission.lastSchool) {
-          pdfDoc.text(`Last School: ${admission.lastSchool}`);
-        }
-        pdfDoc.text(`Submitted Date: ${new Date(admission.submittedAt).toLocaleString()}`);
-        pdfDoc.end();
-      }
-    } catch (error) {
-      console.error("Download all error:", error);
-      res.status(500).json({ message: "Failed to download all documents" });
-    }
-  });
-
-  app.get("/api/admissions/:id/download", async (req, res) => {
-    try {
-      const admission = await storage.getAdmission(req.params.id);
-      if (!admission) {
-        return res.status(404).json({ message: "Admission not found" });
-      }
-
-      res.setHeader('Content-Type', 'application/zip');
-      res.setHeader('Content-Disposition', `attachment; filename="admission-${req.params.id}.zip"`);
-
-      const archive = archiver('zip', { zlib: { level: 9 } });
-      
-      archive.on('error', (err) => {
-        console.error('Archive error:', err);
-        res.status(500).json({ message: "Failed to create archive" });
-      });
-
-      archive.pipe(res);
-
-      // Create PDF with applicant details
-      const pdfDoc = new PDFDocument();
-      const pdfChunks: Buffer[] = [];
-      
-      pdfDoc.on('data', (chunk: Buffer) => {
-        pdfChunks.push(chunk);
-      });
-
-      pdfDoc.on('end', () => {
-        const pdfBuffer = Buffer.concat(pdfChunks);
-        archive.append(pdfBuffer, { name: 'applicant-details.pdf' });
-
-        // Add document files
-        const docMap: Record<string, string> = {
-          birthCertificate: 'birth-certificate',
-          reportCard: 'report-card',
-          transferCertificate: 'transfer-certificate',
-          photographs: 'photographs',
-          addressProof: 'address-proof',
-          parentIdProof: 'parent-id-proof'
-        };
-
-        for (const [key, filename] of Object.entries(docMap)) {
-          const base64Data = admission[key as keyof typeof admission];
-          if (base64Data && typeof base64Data === 'string') {
-            const buffer = Buffer.from(base64Data, 'base64');
-            archive.append(buffer, { name: `${filename}.bin` });
-          }
-        }
-
-        archive.finalize();
-      });
-
-      pdfDoc.fontSize(16).text('Admission Application Details', { underline: true });
-      pdfDoc.moveDown();
-      pdfDoc.fontSize(12);
-      pdfDoc.text(`Student Name: ${admission.name}`);
-      pdfDoc.text(`Email: ${admission.email}`);
-      pdfDoc.text(`Phone: ${admission.phone}`);
-      pdfDoc.text(`Class Applying For: ${admission.className}`);
-      if (admission.lastSchool) {
-        pdfDoc.text(`Last School: ${admission.lastSchool}`);
-      }
-      pdfDoc.text(`Submitted Date: ${new Date(admission.submittedAt).toLocaleString()}`);
-      pdfDoc.end();
-    } catch (error) {
-      console.error("Download error:", error);
-      res.status(500).json({ message: "Failed to download documents" });
     }
   });
 

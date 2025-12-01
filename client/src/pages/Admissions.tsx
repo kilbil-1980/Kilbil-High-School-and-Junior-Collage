@@ -45,26 +45,27 @@ export default function Admissions() {
   });
   const [isUploading, setIsUploading] = useState(false);
 
-  const admissionMutation = useMutation({
+  const sendEmailMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("POST", "/api/admissions", JSON.stringify(data), {
+      return apiRequest("POST", "/api/admissions/send-email", JSON.stringify(data), {
         "Content-Type": "application/json",
       });
     },
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       toast({
-        title: "Application Submitted!",
-        description: "Your admission application has been received. We will contact you soon.",
+        title: "Email Ready!",
+        description: "Your application has been saved. Opening email client...",
       });
+      window.location.href = response.mailtoLink;
       setFormData({ name: "", email: "", phone: "", className: "", lastSchool: "" });
       setFiles({ birthCertificate: null, reportCard: null, transferCertificate: null, photographs: null, addressProof: null, parentIdProof: null });
       setFileUrls({ birthCertificate: "", reportCard: "", transferCertificate: "", photographs: "", addressProof: "", parentIdProof: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/admissions"] });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: "Submission Failed",
-        description: "There was an error submitting your application. Please try again.",
+        title: "Failed",
+        description: error?.message || "There was an error. Please try again.",
         variant: "destructive",
       });
     },
@@ -103,35 +104,6 @@ export default function Admissions() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.email || !formData.phone || !formData.className) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const submissionData = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      className: formData.className,
-      lastSchool: formData.lastSchool || undefined,
-      birthCertificateUrl: fileUrls.birthCertificate || undefined,
-      reportCardUrl: fileUrls.reportCard || undefined,
-      transferCertificateUrl: fileUrls.transferCertificate || undefined,
-      photographsUrl: fileUrls.photographs || undefined,
-      addressProofUrl: fileUrls.addressProof || undefined,
-      parentIdProofUrl: fileUrls.parentIdProof || undefined,
-    };
-
-    admissionMutation.mutate(submissionData);
-  };
-
   const handleSendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -144,30 +116,16 @@ export default function Admissions() {
       return;
     }
 
-    try {
-      const response = await fetch("/api/admissions/generate-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          className: formData.className,
-          lastSchool: formData.lastSchool,
-          fileUrls,
-        }),
-      });
+    const emailData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      className: formData.className,
+      lastSchool: formData.lastSchool || undefined,
+      fileUrls,
+    };
 
-      if (!response.ok) throw new Error("Failed to generate email");
-      const data = await response.json();
-      window.location.href = data.mailtoLink;
-    } catch (error) {
-      toast({
-        title: "Email Generation Failed",
-        description: "Failed to generate email. Please try again.",
-        variant: "destructive",
-      });
-    }
+    sendEmailMutation.mutate(emailData);
   };
 
   return (
@@ -271,7 +229,7 @@ export default function Admissions() {
             <CardTitle>Application Form</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSendEmail} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">
@@ -484,22 +442,12 @@ export default function Admissions() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={admissionMutation.isPending || isUploading}
-                  data-testid="button-submit"
-                >
-                  {admissionMutation.isPending ? "Submitting..." : "Submit Application"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  disabled={admissionMutation.isPending || isUploading}
-                  onClick={handleSendEmail}
+                  disabled={sendEmailMutation.isPending || isUploading}
                   data-testid="button-send-email"
                   className="flex items-center gap-2"
                 >
                   <Send className="w-4 h-4" />
-                  Send Email
+                  {sendEmailMutation.isPending ? "Sending..." : "Send Email"}
                 </Button>
               </div>
             </form>
