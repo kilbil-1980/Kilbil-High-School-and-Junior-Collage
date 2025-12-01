@@ -104,23 +104,27 @@ export default function Facilities() {
           </Card>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {facilities.map((facility) => (
-                <Card key={facility.id} className="overflow-hidden hover-elevate" data-testid={`card-facility-${facility.id}`}>
-                  <div className="h-48 overflow-hidden">
+                <div
+                  key={facility.id}
+                  className="group bg-white dark:bg-slate-950 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                  data-testid={`card-facility-${facility.id}`}
+                >
+                  <div className="h-56 overflow-hidden">
                     <img
                       src={facility.imageUrl || defaultImages[facility.name] || labImage}
                       alt={facility.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>
-                  <CardHeader>
-                    <CardTitle className="text-xl">{facility.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{facility.description}</p>
-                  </CardContent>
-                </Card>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3 group-hover:text-primary transition-colors">
+                      {facility.name}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{facility.description}</p>
+                  </div>
+                </div>
               ))}
             </div>
 
