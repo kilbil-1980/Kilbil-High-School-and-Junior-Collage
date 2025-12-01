@@ -90,15 +90,6 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
               <Button type="submit" disabled={isLoading} className="w-full" data-testid="button-admin-login">
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
-              <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
-                <p><strong>Master Admin:</strong></p>
-                <p>Username: masteradmin</p>
-                <p>Password: masteradmin@kilbil1980</p>
-                <hr className="my-2 border-muted-foreground/30" />
-                <p><strong>Sub Admin:</strong></p>
-                <p>Username: admin</p>
-                <p>Password: kilbil123456</p>
-              </div>
             </form>
           </Form>
         </CardContent>
