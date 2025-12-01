@@ -65,17 +65,36 @@ export default function FacultyPage() {
             {facultyList.map((member) => (
               <Link key={member.id} href={`/faculty/${member.id}`}>
                 <Card className="hover-elevate active-elevate-2 cursor-pointer h-full" data-testid={`card-faculty-${member.id}`}>
-                  <CardHeader className="text-center">
-                    <Avatar className="w-24 h-24 mx-auto mb-4">
-                      <AvatarImage src={member.photo || defaultAvatar} alt={member.name} />
-                      <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="text-xl">{member.name}</CardTitle>
-                    <Badge variant="secondary" className="mx-auto mt-2">{member.subject}</Badge>
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col items-center">
+                      <Avatar className="w-20 h-20 mb-3">
+                        <AvatarImage src={member.photo || defaultAvatar} alt={member.name} />
+                        <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <CardTitle className="text-center text-lg">{member.name}</CardTitle>
+                    </div>
                   </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">{member.qualification}</p>
-                    <p className="text-sm text-muted-foreground">{member.experience}</p>
+                  <CardContent className="space-y-3">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold text-muted-foreground">Subject:</span>
+                        <span>{member.subject}</span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold text-muted-foreground">Qualification:</span>
+                        <span>{member.qualification}</span>
+                      </div>
+                      {member.experience && (
+                        <div className="flex flex-col gap-1">
+                          <span className="font-semibold text-muted-foreground">Experience:</span>
+                          <span>{member.experience}</span>
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold text-muted-foreground">Bio:</span>
+                        <span className="text-xs line-clamp-2">{member.bio}</span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </Link>
