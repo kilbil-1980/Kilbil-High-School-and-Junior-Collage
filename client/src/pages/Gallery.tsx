@@ -44,6 +44,9 @@ export default function Gallery() {
       if (!res.ok) throw new Error("Failed to fetch gallery");
       return res.json();
     },
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
+    staleTime: 4000,
   });
 
   const { data: allImages } = useQuery<GalleryImage[]>({
@@ -54,6 +57,9 @@ export default function Gallery() {
       const data = await res.json();
       return data.images || [];
     },
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
+    staleTime: 4000,
   });
 
   const categories = ["all"];

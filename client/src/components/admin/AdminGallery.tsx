@@ -63,7 +63,8 @@ export function AdminGallery() {
       setFormData({ category: "", imageUrl: "", caption: "" });
       setEditingId(null);
       setCurrentPage(1);
-      queryClient.invalidateQueries({ queryKey: ["/api/gallery?limit=1000"] });
+      // Invalidate all gallery-related queries
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
     },
   });
 
@@ -72,7 +73,8 @@ export function AdminGallery() {
     onSuccess: () => {
       toast({ title: "Success", description: "Image removed from gallery" });
       setDeleteConfirm(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/gallery?limit=1000"] });
+      // Invalidate all gallery-related queries
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
     },
   });
 
