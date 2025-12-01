@@ -53,15 +53,12 @@ export default function Facilities() {
   }
 
   return (
-    <div className="min-h-screen bg-soft-white py-16">
+    <div className="min-h-screen bg-background py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <div className="inline-block mb-4 px-4 py-2 bg-pale-beige rounded-full border border-golden-yellow/30">
-            <span className="text-royal-blue font-semibold text-sm">Our Campus</span>
-          </div>
-          <h1 className="text-5xl font-bold mb-4 text-royal-blue" data-testid="text-page-title">World-Class Facilities</h1>
-          <p className="text-lg text-slate-gray max-w-3xl mx-auto">
-            Modern infrastructure designed for comprehensive development
+          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Our Facilities</h1>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            Modern infrastructure and well-equipped facilities for comprehensive education
           </p>
         </div>
 
@@ -75,27 +72,23 @@ export default function Facilities() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {facilities.map((facility, idx) => {
-              const colors = ['#1E3A8A', '#DC4A38', '#0EA5E9', '#FCD34D', '#475569', '#FEF3E2'];
-              const color = colors[idx % colors.length];
-              return (
-                <Card key={facility.id} className="overflow-hidden hover-elevate border-t-4 transition-all" style={{borderTopColor: color}} data-testid={`card-facility-${facility.id}`}>
-                  <div className="h-48 overflow-hidden">
-                    <img
-                      src={facility.imageUrl || defaultImages[facility.name] || labImage}
-                      alt={facility.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardHeader>
-                    <CardTitle className="text-xl text-royal-blue">{facility.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-slate-gray">{facility.description}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {facilities.map((facility) => (
+              <Card key={facility.id} className="overflow-hidden hover-elevate" data-testid={`card-facility-${facility.id}`}>
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={facility.imageUrl || defaultImages[facility.name] || labImage}
+                    alt={facility.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-xl">{facility.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{facility.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </div>
