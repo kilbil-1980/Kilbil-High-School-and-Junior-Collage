@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -30,10 +29,10 @@ export default function Gallery() {
 
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 12;
+  const ITEMS_PER_PAGE = 30;
 
-  // Fetch paginated gallery data
   const { data: galleryData, isLoading } = useQuery<GalleryResponse>({
     queryKey: ["/api/gallery", currentPage, selectedCategory],
     queryFn: async () => {
@@ -48,7 +47,6 @@ export default function Gallery() {
     },
   });
 
-  // Fetch all images (for category list only)
   const { data: allImages } = useQuery<GalleryImage[]>({
     queryKey: ["/api/gallery/categories"],
     queryFn: async () => {
@@ -67,14 +65,42 @@ export default function Gallery() {
   const images = galleryData?.images || [];
   const pagination = galleryData?.pagination;
 
+  const handleImageClick = (image: GalleryImage) => {
+    setSelectedImage(image);
+    const index = images.findIndex(img => img.id === image.id);
+    setCurrentImageIndex(index);
+  };
+
+  const handlePrevImage = () => {
+    if (currentImageIndex > 0) {
+      setSelectedImage(images[currentImageIndex - 1]);
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  const handleNextImage = () => {
+    if (currentImageIndex < images.length - 1) {
+      setSelectedImage(images[currentImageIndex + 1]);
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const getImageHeight = (index: number) => {
+    const heights = ["h-72", "h-80", "h-64", "h-96", "h-72", "h-80"];
+    return heights[index % heights.length];
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background py-16">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold mb-8 text-center">Gallery</h1>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <Skeleton key={i} className="h-64 w-full" />
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold mb-3">Gallery</h1>
+            <p className="text-lg text-muted-foreground">Loading wonderful moments...</p>
+          </div>
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+              <Skeleton key={i} className="break-inside-avoid w-full h-64 rounded-xl" />
             ))}
           </div>
         </div>
@@ -83,16 +109,16 @@ export default function Gallery() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Gallery</h1>
-          <p className="text-lg text-muted-foreground">
-            Moments and memories from our school life
+          <h1 className="text-5xl font-bold mb-3" data-testid="text-page-title">School Gallery</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Capturing precious moments and celebrating our vibrant school community
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
           {categories.map((category) => (
             <Button
               key={category}
@@ -102,76 +128,84 @@ export default function Gallery() {
                 setCurrentPage(1);
               }}
               data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+              className="rounded-full capitalize"
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {category === "all" ? "All Moments" : category}
             </Button>
           ))}
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <Skeleton key={i} className="h-64 w-full" data-testid={`skeleton-${i}`} />
-            ))}
+        {!images || images.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-lg text-muted-foreground" data-testid="text-no-images">
+              No images to display yet. Check back soon for updates!
+            </p>
           </div>
-        ) : !images || images.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground" data-testid="text-no-images">
-                No images to display. Check back soon for updates!
-              </p>
-            </CardContent>
-          </Card>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-              {images.map((image) => (
-                <Card
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+              {images.map((image, index) => (
+                <div
                   key={image.id}
-                  className="overflow-hidden cursor-pointer hover-elevate active-elevate-2"
-                  onClick={() => setSelectedImage(image)}
+                  className="break-inside-avoid group cursor-pointer"
+                  onClick={() => handleImageClick(image)}
                   data-testid={`card-image-${image.id}`}
                 >
-                  <img
-                    src={image.imageUrl}
-                    alt={image.caption || "Gallery image"}
-                    className="w-full h-64 object-cover"
-                  />
-                  <CardContent className="p-3 space-y-1">
+                  <div className="relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="bg-gradient-to-br from-primary/10 to-accent/10 absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <img
+                      src={image.imageUrl}
+                      alt={image.caption || "Gallery image"}
+                      className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      style={{ aspectRatio: "3/4" }}
+                      loading="lazy"
+                    />
                     {image.caption && (
-                      <p className="text-sm text-muted-foreground truncate">{image.caption}</p>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p className="text-white text-sm font-medium truncate">{image.caption}</p>
+                      </div>
                     )}
-                    <p className="text-xs text-secondary-foreground font-medium">{image.category}</p>
-                  </CardContent>
-                </Card>
+                    <div className="absolute top-3 right-3 bg-primary/80 backdrop-blur-sm px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <p className="text-white text-xs font-semibold">{image.category}</p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 
             {pagination && pagination.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
+              <div className="flex items-center justify-center gap-3 mt-12">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   data-testid="button-prev-page"
+                  className="rounded-full"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-4 h-4 mr-1" />
                   Previous
                 </Button>
                 
                 <div className="flex items-center gap-2">
-                  {Array.from({ length: pagination.totalPages }).map((_, i) => (
-                    <Button
-                      key={i + 1}
-                      variant={currentPage === i + 1 ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(i + 1)}
-                      data-testid={`button-page-${i + 1}`}
-                    >
-                      {i + 1}
-                    </Button>
-                  ))}
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }).map((_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        data-testid={`button-page-${pageNum}`}
+                        className="rounded-full"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                  {pagination.totalPages > 5 && (
+                    <span className="text-muted-foreground">...</span>
+                  )}
                 </div>
 
                 <Button
@@ -180,9 +214,10 @@ export default function Gallery() {
                   onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
                   disabled={!pagination.hasMore}
                   data-testid="button-next-page"
+                  className="rounded-full"
                 >
                   Next
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             )}
@@ -190,28 +225,52 @@ export default function Gallery() {
         )}
 
         <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-          <DialogContent className="max-w-4xl p-0">
+          <DialogContent className="max-w-4xl w-full p-0 bg-black/95 border-0">
             {selectedImage && (
-              <div className="relative">
+              <div className="relative flex items-center justify-center">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-4 right-4 z-10 bg-background/80 backdrop-blur-sm"
+                  className="absolute top-4 right-4 z-50 bg-white/20 hover:bg-white/30 rounded-full"
                   onClick={() => setSelectedImage(null)}
                   data-testid="button-close-lightbox"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5 text-white" />
                 </Button>
-                <img
-                  src={selectedImage.imageUrl}
-                  alt={selectedImage.caption || "Gallery image"}
-                  className="w-full h-auto max-h-[80vh] object-contain"
-                />
-                {selectedImage.caption && (
-                  <div className="p-4 bg-background">
-                    <p className="text-center text-muted-foreground">{selectedImage.caption}</p>
-                  </div>
-                )}
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-40 bg-white/20 hover:bg-white/30 rounded-full disabled:opacity-50"
+                  onClick={handlePrevImage}
+                  disabled={currentImageIndex === 0}
+                >
+                  <ChevronLeft className="w-6 h-6 text-white" />
+                </Button>
+
+                <div className="flex flex-col items-center">
+                  <img
+                    src={selectedImage.imageUrl}
+                    alt={selectedImage.caption || "Gallery image"}
+                    className="max-w-3xl max-h-[75vh] object-contain rounded-lg"
+                  />
+                  {selectedImage.caption && (
+                    <p className="text-white text-center mt-4 text-sm max-w-2xl">{selectedImage.caption}</p>
+                  )}
+                  <p className="text-white/60 text-xs mt-2">
+                    {currentImageIndex + 1} of {images.length}
+                  </p>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-40 bg-white/20 hover:bg-white/30 rounded-full disabled:opacity-50"
+                  onClick={handleNextImage}
+                  disabled={currentImageIndex === images.length - 1}
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </Button>
               </div>
             )}
           </DialogContent>

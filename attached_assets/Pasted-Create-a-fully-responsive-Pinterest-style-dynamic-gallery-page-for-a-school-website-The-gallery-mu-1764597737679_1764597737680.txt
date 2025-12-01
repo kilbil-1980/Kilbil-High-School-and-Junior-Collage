@@ -1,0 +1,58 @@
+Create a fully responsive, Pinterest-style dynamic gallery page for a school website.
+The gallery must feel human-made, visually rich, and extremely attractive for parents and students.
+Use a masonry grid layout (Pinterest-like) that automatically adjusts image sizes and positions based on height and screen size.
+The images will be uploaded dynamically from the backend, so the layout should support infinite/auto loading, lazy loading, smooth animations, and perfect responsiveness on mobile, tablet, and desktop.
+
+Key Requirements:
+
+Use React for the frontend.
+
+Use a Masonry/Pinterest layout (CSS Masonry, Flex Masonry, or any React Masonry library).
+
+Auto-flow grid based on image height.
+
+Add soft shadows, gentle hover zoom-in animations, and rounded corners (12px–20px).
+
+All images should auto-fit without breaking aspect ratio.
+
+Include lazy loading for performance.
+
+Add category filters (e.g., Events, Competitions, Celebrations, School Life).
+
+Add year-wise filters (optional).
+
+On click, open each image in a beautiful fullscreen lightbox with arrows to navigate between photos.
+
+Make it SEO-friendly and optimized for fast load times.
+
+Make it visually aesthetic with school-friendly color palette and subtle backgrounds (no AI-template style).
+
+No cropping or distortion — maintain image quality.
+
+Admin Side Requirements:
+
+Admin should be able to upload images dynamically from admin panel (drag & drop upload recommended).
+
+The uploaded images must appear instantly in the gallery grid.
+
+Backend image link or cloud storage (e.g., Firebase, Cloudinary, S3) should load into gallery dynamically.
+
+Use a clean API structure to fetch images in JSON format.
+
+UI/UX Requirements:
+
+Use soft pastel school-friendly colors.
+
+Add a subtle textured or gradient background (very light, not distracting).
+
+Smooth fade-in animation when images load.
+
+Masonry layout must rearrange beautifully on all devices.
+
+Use readable labels and titles for every category.
+
+Overall Goal:
+
+Build a Pinterest-like gallery that makes the school look vibrant, lively, and visually appealing.
+
+Make it feel handcrafted, aesthetic, and premium — not like a generic AI website."**
