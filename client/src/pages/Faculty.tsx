@@ -64,35 +64,35 @@ export default function FacultyPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {facultyList.map((member) => (
               <Link key={member.id} href={`/faculty/${member.id}`}>
-                <Card className="hover-elevate active-elevate-2 cursor-pointer h-full" data-testid={`card-faculty-${member.id}`}>
-                  <CardHeader className="pb-3">
+                <Card className="hover-elevate active-elevate-2 cursor-pointer h-full flex flex-col" data-testid={`card-faculty-${member.id}`}>
+                  <CardHeader className="pb-2 pt-3 px-4">
                     <div className="flex flex-col items-center">
-                      <Avatar className="w-20 h-20 mb-3">
+                      <Avatar className="w-16 h-16 mb-2">
                         <AvatarImage src={member.photo || defaultAvatar} alt={member.name} />
                         <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                       </Avatar>
-                      <CardTitle className="text-center text-lg">{member.name}</CardTitle>
+                      <CardTitle className="text-center text-base">{member.name}</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-muted-foreground">Subject:</span>
-                        <span>{member.subject}</span>
+                  <CardContent className="flex-1 px-4 py-2">
+                    <div className="space-y-1 text-xs">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-muted-foreground text-xs">Subject:</span>
+                        <span className="text-sm">{member.subject}</span>
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-muted-foreground">Qualification:</span>
-                        <span>{member.qualification}</span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-muted-foreground text-xs">Qualification:</span>
+                        <span className="text-sm">{member.qualification}</span>
                       </div>
                       {member.experience && (
-                        <div className="flex flex-col gap-1">
-                          <span className="font-semibold text-muted-foreground">Experience:</span>
-                          <span>{member.experience}</span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-semibold text-muted-foreground text-xs">Experience:</span>
+                          <span className="text-sm">{member.experience}</span>
                         </div>
                       )}
-                      <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-muted-foreground">Bio:</span>
-                        <span className="text-xs line-clamp-2">{member.bio}</span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-muted-foreground text-xs">Bio:</span>
+                        <span className="text-xs line-clamp-1">{member.bio}</span>
                       </div>
                     </div>
                   </CardContent>
