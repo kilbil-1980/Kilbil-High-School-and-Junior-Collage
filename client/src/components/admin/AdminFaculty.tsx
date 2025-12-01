@@ -38,11 +38,11 @@ export function AdminFaculty() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  const { data: facultyResponse } = useQuery<{ data: Faculty[] }>({
-    queryKey: ["/api/faculty?limit=1000"],
+  const { data: facultyResponse } = useQuery<{ faculty: Faculty[] }>({
+    queryKey: ["/api/faculty", 1000],
   });
 
-  const allFacultyList = facultyResponse?.data || [];
+  const allFacultyList = facultyResponse?.faculty || [];
 
   const filteredList = allFacultyList
     .filter((f) =>
@@ -70,6 +70,7 @@ export function AdminFaculty() {
       setEditingId(null);
       setCurrentPage(1);
       queryClient.invalidateQueries({ queryKey: ["/api/faculty"] });
+      queryClient.refetchQueries({ queryKey: ["/api/faculty"] });
     },
   });
 
@@ -79,6 +80,7 @@ export function AdminFaculty() {
       toast({ title: "Success", description: "Faculty member removed successfully" });
       setDeleteConfirm(null);
       queryClient.invalidateQueries({ queryKey: ["/api/faculty"] });
+      queryClient.refetchQueries({ queryKey: ["/api/faculty"] });
     },
   });
 
