@@ -11,6 +11,13 @@ export default {
         sm: ".1875rem", /* 3px */
       },
       colors: {
+        "royal-blue": "#1E3A8A",
+        "golden-yellow": "#FCD34D",
+        "terracotta": "#DC4A38",
+        "slate-gray": "#475569",
+        "pale-beige": "#FEF3E2",
+        "soft-white": "#FAFAFA",
+        "sky-blue": "#0EA5E9",
         // Flat / base colors (regular buttons)
         background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",
