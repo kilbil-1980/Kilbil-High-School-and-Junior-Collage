@@ -18,6 +18,17 @@ import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2, ChevronLeft, ChevronRight, Edit2, X } from "lucide-react";
 import type { Facility } from "@shared/schema";
 
+interface FacilitiesResponse {
+  facilities: Facility[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+}
+
 export function AdminFacilities() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -29,17 +40,23 @@ export function AdminFacilities() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const ITEMS_PER_PAGE = 12;
 
-  const { data: allFacilitiesData = [] } = useQuery<Facility[]>({
-    queryKey: ["/api/facilities"],
+  const { data: facilitiesData } = useQuery<FacilitiesResponse>({
+    queryKey: ["/api/facilities", currentPage],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        limit: String(ITEMS_PER_PAGE),
+      });
+      const res = await fetch(`/api/facilities?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch facilities");
+      return res.json();
+    },
   });
 
-  const allFacilities = [...allFacilitiesData].reverse(); // Recently added first
-
-  const totalPages = Math.ceil(allFacilities.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const facilities = allFacilities.slice(startIndex, startIndex + itemsPerPage);
+  const facilities = facilitiesData?.facilities || [];
+  const pagination = facilitiesData?.pagination;
 
   const createMutation = useMutation({
     mutationFn: (data: typeof formData) => 
@@ -174,8 +191,8 @@ export function AdminFacilities() {
               No facilities added yet
             </p>
           ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 {facilities.map((facility) => (
                   <Card key={facility.id} className="overflow-hidden hover-elevate flex flex-col" data-testid={`facility-${facility.id}`}>
                     <div className="h-48 overflow-hidden bg-muted">
@@ -223,34 +240,53 @@ export function AdminFacilities() {
                 ))}
               </div>
 
-              {allFacilities.length > itemsPerPage && (
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    Page {currentPage} of {totalPages} ({allFacilities.length} total)
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      data-testid="button-prev-page"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      data-testid="button-next-page"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
+              {/* Pagination */}
+              {pagination && pagination.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    data-testid="button-prev-page"
+                    className="rounded-full"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: pagination.totalPages }).map((_, i) => {
+                      const pageNum = i + 1;
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(pageNum)}
+                          data-testid={`button-page-${pageNum}`}
+                          className="rounded-full"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
                   </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                    disabled={!pagination.hasMore}
+                    data-testid="button-next-page"
+                    className="rounded-full"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
                 </div>
               )}
-            </div>
+            </>
           )}
         </CardContent>
       </Card>

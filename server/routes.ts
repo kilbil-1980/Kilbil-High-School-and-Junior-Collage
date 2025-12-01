@@ -271,8 +271,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/facilities", async (req, res) => {
     try {
-      const facilities = await storage.getFacilities();
-      res.json(facilities);
+      const page = Math.max(1, parseInt(req.query.page as string) || 1);
+      const limit = Math.max(1, parseInt(req.query.limit as string) || 12);
+      
+      const allFacilities = await storage.getFacilities();
+      const total = allFacilities.length;
+      const totalPages = Math.ceil(total / limit);
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      
+      const facilities = allFacilities.slice(startIndex, endIndex);
+      
+      res.json({
+        facilities,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasMore: page < totalPages,
+        },
+      });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch facilities" });
     }

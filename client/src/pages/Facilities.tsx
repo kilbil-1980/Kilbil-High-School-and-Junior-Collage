@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Facility } from "@shared/schema";
 import labImage from "@assets/generated_images/science_laboratory_facility.png";
 import libraryImage from "@assets/generated_images/school_library_facility.png";
@@ -16,7 +18,21 @@ const defaultImages: Record<string, string> = {
   "Medical Room": medicalImage,
 };
 
+interface FacilitiesResponse {
+  facilities: Facility[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+}
+
 export default function Facilities() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
+
   useEffect(() => {
     setSEOMetaTags({
       title: pageMetadata.facilities.title,
@@ -24,9 +40,25 @@ export default function Facilities() {
       url: window.location.href
     });
   }, []);
-  const { data: facilities, isLoading } = useQuery<Facility[]>({
-    queryKey: ["/api/facilities"],
+
+  const { data: facilitiesData, isLoading } = useQuery<FacilitiesResponse>({
+    queryKey: ["/api/facilities", currentPage],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        limit: String(ITEMS_PER_PAGE),
+      });
+      const res = await fetch(`/api/facilities?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch facilities");
+      return res.json();
+    },
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
+    staleTime: 4000,
   });
+
+  const facilities = facilitiesData?.facilities || [];
+  const pagination = facilitiesData?.pagination;
 
   if (isLoading) {
     return (
@@ -71,25 +103,74 @@ export default function Facilities() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {facilities.map((facility) => (
-              <Card key={facility.id} className="overflow-hidden hover-elevate" data-testid={`card-facility-${facility.id}`}>
-                <div className="h-48 overflow-hidden">
-                  <img
-                    src={facility.imageUrl || defaultImages[facility.name] || labImage}
-                    alt={facility.name}
-                    className="w-full h-full object-cover"
-                  />
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {facilities.map((facility) => (
+                <Card key={facility.id} className="overflow-hidden hover-elevate" data-testid={`card-facility-${facility.id}`}>
+                  <div className="h-48 overflow-hidden">
+                    <img
+                      src={facility.imageUrl || defaultImages[facility.name] || labImage}
+                      alt={facility.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-xl">{facility.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">{facility.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {pagination && pagination.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  data-testid="button-prev-page"
+                  className="rounded-full"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: pagination.totalPages }).map((_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        data-testid={`button-page-${pageNum}`}
+                        className="rounded-full"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">{facility.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{facility.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                  disabled={!pagination.hasMore}
+                  data-testid="button-next-page"
+                  className="rounded-full"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
