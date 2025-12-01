@@ -18,6 +18,10 @@ interface GalleryResponse {
   };
 }
 
+interface ImageDimensions {
+  [key: string]: { width: number; height: number };
+}
+
 export default function Gallery() {
   useEffect(() => {
     setSEOMetaTags({
@@ -31,6 +35,7 @@ export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [imageDimensions, setImageDimensions] = useState<ImageDimensions>({});
   const ITEMS_PER_PAGE = 30;
 
   const { data: galleryData, isLoading } = useQuery<GalleryResponse>({
@@ -65,6 +70,52 @@ export default function Gallery() {
   const images = galleryData?.images || [];
   const pagination = galleryData?.pagination;
 
+  // Load image dimensions
+  useEffect(() => {
+    const loadImageDimensions = async () => {
+      const dims: ImageDimensions = {};
+      for (const image of images) {
+        if (!imageDimensions[image.id]) {
+          const img = new Image();
+          img.onload = () => {
+            setImageDimensions(prev => ({
+              ...prev,
+              [image.id]: { width: img.width, height: img.height }
+            }));
+          };
+          img.src = image.imageUrl;
+        }
+      }
+    };
+    loadImageDimensions();
+  }, [images, imageDimensions]);
+
+  // Determine grid size based on aspect ratio
+  const getGridSize = (imageId: string): { cols: number; rows: number } => {
+    const dims = imageDimensions[imageId];
+    if (!dims) {
+      // Default while loading
+      return { cols: 1, rows: 1 };
+    }
+
+    const aspectRatio = dims.width / dims.height;
+
+    // Wide landscape (>1.5)
+    if (aspectRatio > 1.5) {
+      return { cols: 2, rows: 1 };
+    }
+    // Landscape (1.2 - 1.5)
+    if (aspectRatio > 1.2) {
+      return { cols: 2, rows: 1 };
+    }
+    // Square-ish (0.85 - 1.2)
+    if (aspectRatio >= 0.85) {
+      return { cols: 1, rows: 1 };
+    }
+    // Tall portrait
+    return { cols: 1, rows: 2 };
+  };
+
   const handleImageClick = (image: GalleryImage) => {
     setSelectedImage(image);
     const index = images.findIndex(img => img.id === image.id);
@@ -85,11 +136,6 @@ export default function Gallery() {
     }
   };
 
-  const getImageHeight = (index: number) => {
-    const heights = ["h-72", "h-80", "h-64", "h-96", "h-72", "h-80"];
-    return heights[index % heights.length];
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 py-12">
@@ -98,7 +144,7 @@ export default function Gallery() {
             <h1 className="text-5xl font-bold mb-3">Gallery</h1>
             <p className="text-lg text-muted-foreground">Loading wonderful moments...</p>
           </div>
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
               <Skeleton key={i} className="break-inside-avoid w-full h-64 rounded-xl" />
             ))}
@@ -143,34 +189,40 @@ export default function Gallery() {
           </div>
         ) : (
           <>
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-              {images.map((image, index) => (
-                <div
-                  key={image.id}
-                  className="break-inside-avoid group cursor-pointer"
-                  onClick={() => handleImageClick(image)}
-                  data-testid={`card-image-${image.id}`}
-                >
-                  <div className="relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div className="bg-gradient-to-br from-primary/10 to-accent/10 absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <img
-                      src={image.imageUrl}
-                      alt={image.caption || "Gallery image"}
-                      className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      style={{ aspectRatio: "3/4" }}
-                      loading="lazy"
-                    />
-                    {image.caption && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <p className="text-white text-sm font-medium truncate">{image.caption}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[250px] mb-8">
+              {images.map((image) => {
+                const size = getGridSize(image.id);
+                return (
+                  <div
+                    key={image.id}
+                    className={`group cursor-pointer col-span-${size.cols} row-span-${size.rows} sm:col-span-${size.cols}`}
+                    onClick={() => handleImageClick(image)}
+                    data-testid={`card-image-${image.id}`}
+                    style={{
+                      gridColumn: `span ${Math.min(size.cols, 2)}`,
+                      gridRow: `span ${Math.min(size.rows, 2)}`,
+                    }}
+                  >
+                    <div className="relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-full">
+                      <div className="bg-gradient-to-br from-primary/10 to-accent/10 absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <img
+                        src={image.imageUrl}
+                        alt={image.caption || "Gallery image"}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      {image.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <p className="text-white text-sm font-medium line-clamp-2">{image.caption}</p>
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 bg-primary/80 backdrop-blur-sm px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p className="text-white text-xs font-semibold">{image.category}</p>
                       </div>
-                    )}
-                    <div className="absolute top-3 right-3 bg-primary/80 backdrop-blur-sm px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <p className="text-white text-xs font-semibold">{image.category}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {pagination && pagination.totalPages > 1 && (
