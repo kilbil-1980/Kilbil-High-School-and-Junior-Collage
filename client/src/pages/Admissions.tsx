@@ -88,20 +88,23 @@ export default function Admissions() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-soft-white py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Admissions</h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Join the Kilbil family and begin your journey towards excellence
+          <div className="inline-block mb-4 px-4 py-2 bg-pale-beige rounded-full border border-golden-yellow/30">
+            <span className="text-royal-blue font-semibold text-sm">Join Us</span>
+          </div>
+          <h1 className="text-5xl font-bold mb-4 text-royal-blue" data-testid="text-page-title">Admissions 2025-26</h1>
+          <p className="text-lg text-slate-gray max-w-3xl mx-auto">
+            Begin your journey of excellence at Kilbil High School
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <Card>
+          <Card className="border-t-4" style={{borderTopColor: '#1E3A8A'}}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-6 h-6 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-royal-blue">
+                <FileText className="w-6 h-6" style={{color: '#1E3A8A'}} />
                 Admission Process
               </CardTitle>
             </CardHeader>
@@ -145,10 +148,10 @@ export default function Admissions() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-t-4" style={{borderTopColor: '#DC4A38'}}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-6 h-6 text-secondary" />
+              <CardTitle className="flex items-center gap-2 text-terracotta">
+                <CheckCircle className="w-6 h-6" style={{color: '#DC4A38'}} />
                 Requirements
               </CardTitle>
             </CardHeader>
