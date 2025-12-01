@@ -42,12 +42,12 @@ export const admissions = pgTable("admissions", {
   phone: text("phone").notNull(),
   className: text("class_name").notNull(),
   lastSchool: text("last_school"),
-  birthCertificate: text("birth_certificate"),
-  reportCard: text("report_card"),
-  transferCertificate: text("transfer_certificate"),
-  photographs: text("photographs"),
-  addressProof: text("address_proof"),
-  parentIdProof: text("parent_id_proof"),
+  birthCertificateUrl: text("birth_certificate_url"),
+  reportCardUrl: text("report_card_url"),
+  transferCertificateUrl: text("transfer_certificate_url"),
+  photographsUrl: text("photographs_url"),
+  addressProofUrl: text("address_proof_url"),
+  parentIdProofUrl: text("parent_id_proof_url"),
   submittedAt: timestamp("submitted_at").notNull(),
 });
 
@@ -126,12 +126,12 @@ export const insertTimetableSchema = createInsertSchema(timetables).omit({ id: t
 });
 export const insertAdmissionSchema = createInsertSchema(admissions).omit({ id: true }).extend({
   lastSchool: z.string().optional(),
-  birthCertificate: z.string().optional(),
-  reportCard: z.string().optional(),
-  transferCertificate: z.string().optional(),
-  photographs: z.string().optional(),
-  addressProof: z.string().optional(),
-  parentIdProof: z.string().optional(),
+  birthCertificateUrl: z.string().optional(),
+  reportCardUrl: z.string().optional(),
+  transferCertificateUrl: z.string().optional(),
+  photographsUrl: z.string().optional(),
+  addressProofUrl: z.string().optional(),
+  parentIdProofUrl: z.string().optional(),
 });
 
 export const insertCareerSchema = createInsertSchema(careers).omit({ id: true, createdAt: true }).extend({

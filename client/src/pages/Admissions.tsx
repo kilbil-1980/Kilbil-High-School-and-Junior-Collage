@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { CheckCircle, FileText, Phone, Mail, User, GraduationCap } from "lucide-react";
+import { CheckCircle, FileText, Phone, Mail, User, GraduationCap, Send } from "lucide-react";
 import { setSEOMetaTags, pageMetadata } from "@/lib/seo";
 
 export default function Admissions() {
@@ -35,10 +35,21 @@ export default function Admissions() {
     addressProof: null as File | null,
     parentIdProof: null as File | null,
   });
+  const [fileUrls, setFileUrls] = useState({
+    birthCertificate: "",
+    reportCard: "",
+    transferCertificate: "",
+    photographs: "",
+    addressProof: "",
+    parentIdProof: "",
+  });
+  const [isUploading, setIsUploading] = useState(false);
 
   const admissionMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      return apiRequest("POST", "/api/admissions", data);
+    mutationFn: async (data: any) => {
+      return apiRequest("POST", "/api/admissions", JSON.stringify(data), {
+        "Content-Type": "application/json",
+      });
     },
     onSuccess: () => {
       toast({
@@ -47,6 +58,7 @@ export default function Admissions() {
       });
       setFormData({ name: "", email: "", phone: "", className: "", lastSchool: "" });
       setFiles({ birthCertificate: null, reportCard: null, transferCertificate: null, photographs: null, addressProof: null, parentIdProof: null });
+      setFileUrls({ birthCertificate: "", reportCard: "", transferCertificate: "", photographs: "", addressProof: "", parentIdProof: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/admissions"] });
     },
     onError: () => {
@@ -57,6 +69,39 @@ export default function Admissions() {
       });
     },
   });
+
+  const handleFileUpload = async (fileKey: string, file: File | null) => {
+    if (!file) {
+      setFileUrls({ ...fileUrls, [fileKey]: "" });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch("/api/admissions/upload-file", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+      const data = await response.json();
+      setFileUrls({ ...fileUrls, [fileKey]: data.url });
+      toast({
+        title: "File Uploaded",
+        description: `${fileKey} uploaded successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: `Failed to upload ${fileKey}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,21 +115,59 @@ export default function Admissions() {
       return;
     }
 
-    const submitData = new FormData();
-    submitData.append("name", formData.name);
-    submitData.append("email", formData.email);
-    submitData.append("phone", formData.phone);
-    submitData.append("className", formData.className);
-    if (formData.lastSchool) submitData.append("lastSchool", formData.lastSchool);
-    
-    if (files.birthCertificate) submitData.append("birthCertificate", files.birthCertificate);
-    if (files.reportCard) submitData.append("reportCard", files.reportCard);
-    if (files.transferCertificate) submitData.append("transferCertificate", files.transferCertificate);
-    if (files.photographs) submitData.append("photographs", files.photographs);
-    if (files.addressProof) submitData.append("addressProof", files.addressProof);
-    if (files.parentIdProof) submitData.append("parentIdProof", files.parentIdProof);
+    const submissionData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      className: formData.className,
+      lastSchool: formData.lastSchool || undefined,
+      birthCertificateUrl: fileUrls.birthCertificate || undefined,
+      reportCardUrl: fileUrls.reportCard || undefined,
+      transferCertificateUrl: fileUrls.transferCertificate || undefined,
+      photographsUrl: fileUrls.photographs || undefined,
+      addressProofUrl: fileUrls.addressProof || undefined,
+      parentIdProofUrl: fileUrls.parentIdProof || undefined,
+    };
 
-    admissionMutation.mutate(submitData);
+    admissionMutation.mutate(submissionData);
+  };
+
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.phone || !formData.className) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admissions/generate-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          className: formData.className,
+          lastSchool: formData.lastSchool,
+          fileUrls,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate email");
+      const data = await response.json();
+      window.location.href = data.mailtoLink;
+    } catch (error) {
+      toast({
+        title: "Email Generation Failed",
+        description: "Failed to generate email. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -302,10 +385,15 @@ export default function Admissions() {
                     <Input
                       id="birthCert"
                       type="file"
-                      onChange={(e) => setFiles({ ...files, birthCertificate: e.target.files?.[0] || null })}
+                      onChange={(e) => {
+                        setFiles({ ...files, birthCertificate: e.target.files?.[0] || null });
+                        handleFileUpload("birthCertificate", e.target.files?.[0] || null);
+                      }}
                       accept=".pdf,.jpg,.jpeg,.png"
+                      disabled={isUploading}
                       data-testid="input-birth-certificate"
                     />
+                    {fileUrls.birthCertificate && <p className="text-xs text-green-600">Uploaded</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -313,10 +401,15 @@ export default function Admissions() {
                     <Input
                       id="reportCard"
                       type="file"
-                      onChange={(e) => setFiles({ ...files, reportCard: e.target.files?.[0] || null })}
+                      onChange={(e) => {
+                        setFiles({ ...files, reportCard: e.target.files?.[0] || null });
+                        handleFileUpload("reportCard", e.target.files?.[0] || null);
+                      }}
                       accept=".pdf,.jpg,.jpeg,.png"
+                      disabled={isUploading}
                       data-testid="input-report-card"
                     />
+                    {fileUrls.reportCard && <p className="text-xs text-green-600">Uploaded</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -324,10 +417,15 @@ export default function Admissions() {
                     <Input
                       id="transferCert"
                       type="file"
-                      onChange={(e) => setFiles({ ...files, transferCertificate: e.target.files?.[0] || null })}
+                      onChange={(e) => {
+                        setFiles({ ...files, transferCertificate: e.target.files?.[0] || null });
+                        handleFileUpload("transferCertificate", e.target.files?.[0] || null);
+                      }}
                       accept=".pdf,.jpg,.jpeg,.png"
+                      disabled={isUploading}
                       data-testid="input-transfer-certificate"
                     />
+                    {fileUrls.transferCertificate && <p className="text-xs text-green-600">Uploaded</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -335,10 +433,15 @@ export default function Admissions() {
                     <Input
                       id="photographs"
                       type="file"
-                      onChange={(e) => setFiles({ ...files, photographs: e.target.files?.[0] || null })}
+                      onChange={(e) => {
+                        setFiles({ ...files, photographs: e.target.files?.[0] || null });
+                        handleFileUpload("photographs", e.target.files?.[0] || null);
+                      }}
                       accept=".jpg,.jpeg,.png"
+                      disabled={isUploading}
                       data-testid="input-photographs"
                     />
+                    {fileUrls.photographs && <p className="text-xs text-green-600">Uploaded</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -346,10 +449,15 @@ export default function Admissions() {
                     <Input
                       id="addressProof"
                       type="file"
-                      onChange={(e) => setFiles({ ...files, addressProof: e.target.files?.[0] || null })}
+                      onChange={(e) => {
+                        setFiles({ ...files, addressProof: e.target.files?.[0] || null });
+                        handleFileUpload("addressProof", e.target.files?.[0] || null);
+                      }}
                       accept=".pdf,.jpg,.jpeg,.png"
+                      disabled={isUploading}
                       data-testid="input-address-proof"
                     />
+                    {fileUrls.addressProof && <p className="text-xs text-green-600">Uploaded</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -357,25 +465,43 @@ export default function Admissions() {
                     <Input
                       id="parentIdProof"
                       type="file"
-                      onChange={(e) => setFiles({ ...files, parentIdProof: e.target.files?.[0] || null })}
+                      onChange={(e) => {
+                        setFiles({ ...files, parentIdProof: e.target.files?.[0] || null });
+                        handleFileUpload("parentIdProof", e.target.files?.[0] || null);
+                      }}
                       accept=".pdf,.jpg,.jpeg,.png"
+                      disabled={isUploading}
                       data-testid="input-parent-id-proof"
                     />
+                    {fileUrls.parentIdProof && <p className="text-xs text-green-600">Uploaded</p>}
                   </div>
                 </div>
 
                 <p className="text-xs text-muted-foreground">Accepted formats: PDF, JPG, PNG (Max 5MB each)</p>
               </div>
 
-              <Button
-                type="submit"
-                size="lg"
-                disabled={admissionMutation.isPending}
-                className="w-full md:w-auto"
-                data-testid="button-submit"
-              >
-                {admissionMutation.isPending ? "Submitting..." : "Submit Application"}
-              </Button>
+              <div className="flex gap-4">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={admissionMutation.isPending || isUploading}
+                  data-testid="button-submit"
+                >
+                  {admissionMutation.isPending ? "Submitting..." : "Submit Application"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  disabled={admissionMutation.isPending || isUploading}
+                  onClick={handleSendEmail}
+                  data-testid="button-send-email"
+                  className="flex items-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  Send Email
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
