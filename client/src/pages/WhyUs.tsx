@@ -45,10 +45,13 @@ export default function WhyUs() {
   ];
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-soft-white py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Why Choose Kilbil?</h1>
+          <div className="inline-block mb-4 px-4 py-2 bg-pale-beige rounded-full border border-golden-yellow/30">
+            <span className="text-royal-blue font-semibold text-sm">Our Strengths</span>
+          </div>
+          <h1 className="text-5xl font-bold mb-4 text-royal-blue" data-testid="text-page-title">Why Choose Kilbil?</h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Discover what makes Kilbil High School & Junior Collage the preferred choice for quality education in Pune
           </p>
@@ -58,10 +61,10 @@ export default function WhyUs() {
           {reasons.map((reason, index) => {
             const Icon = reason.icon;
             return (
-              <Card key={index} className="hover-elevate" data-testid={`card-reason-${index}`}>
+              <Card key={index} className="hover-elevate border-t-4" style={{borderTopColor: ['#1E3A8A', '#DC4A38', '#0EA5E9', '#FCD34D', '#475569', '#FEF3E2'][index % 6]}} data-testid={`card-reason-${index}`}>
                 <CardHeader>
-                  <Icon className="w-12 h-12 mb-4 text-primary" />
-                  <CardTitle className="text-xl">{reason.title}</CardTitle>
+                  <Icon className="w-12 h-12 mb-4" style={{color: ['#1E3A8A', '#DC4A38', '#0EA5E9', '#FCD34D', '#475569', '#FEF3E2'][index % 6]}} />
+                  <CardTitle className="text-xl text-royal-blue">{reason.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">{reason.description}</p>
@@ -71,9 +74,9 @@ export default function WhyUs() {
           })}
         </div>
 
-        <Card className="bg-accent">
+        <Card className="bg-gradient-to-r from-pale-beige to-soft-white border-2" style={{borderColor: '#DC4A38'}}>
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold mb-6 text-center">Our Commitment</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center text-royal-blue">Our Commitment</h2>
             <div className="space-y-4 text-muted-foreground">
               <p data-testid="text-commitment-1">
                 At Kilbil High School & Junior Collage, we are committed to providing an educational experience that goes beyond textbooks and examinations. We believe in nurturing curious, confident, and compassionate individuals who are prepared to make positive contributions to society.

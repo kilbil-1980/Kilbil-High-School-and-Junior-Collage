@@ -101,14 +101,17 @@ export default function Academics() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/5">
+    <div className="min-h-screen bg-soft-white">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-primary/90 to-primary/70 text-white py-16 md:py-24">
+      <div className="relative bg-gradient-to-r from-royal-blue to-slate-gray text-white py-16 md:py-24">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width=%2260%27%20height=%2760%27%20viewBox=%270%200%2060%2060%27%20xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cg%20fill=%27none%27%20fill-rule=%27evenodd%27%3E%3Cg%20fill=%27%23ffffff%27%20fill-opacity=%270.1%27%3E%3Cpath%20d=%27M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%27/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-page-title">Academic Excellence</h1>
+          <div className="inline-block mb-4 px-4 py-2 bg-golden-yellow/20 rounded-full border border-golden-yellow/40">
+            <span className="text-golden-yellow font-semibold text-sm">Learning Excellence</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" data-testid="text-page-title">Academic Programs</h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl">
             Comprehensive education from elementary through higher secondary, fostering intellectual growth and character development
           </p>
@@ -174,7 +177,7 @@ export default function Academics() {
         </div>
 
         {/* Key Highlights Section */}
-        <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg p-8 border border-primary/10">
+        <div className="bg-gradient-to-r from-pale-beige to-soft-white rounded-lg p-8 border-2" style={{borderColor: '#1E3A8A'}}>
           <h2 className="text-2xl font-bold mb-6">Why Choose Our Academic Programs?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -201,10 +204,10 @@ export default function Academics() {
             Join Kilbil High School & Junior College and experience comprehensive education that shapes future leaders
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Button size="lg" data-testid="button-admissions" onClick={() => navigate("/admissions")}>
+            <Button size="lg" className="bg-royal-blue text-white hover:bg-terracotta" data-testid="button-admissions" onClick={() => navigate("/admissions")}>
               Apply Now
             </Button>
-            <Button size="lg" variant="outline" data-testid="button-contact" onClick={() => navigate("/contact")}>
+            <Button size="lg" className="border-2 border-royal-blue text-royal-blue hover:bg-royal-blue hover:text-white" data-testid="button-contact" onClick={() => navigate("/contact")}>
               Contact Us
             </Button>
           </div>

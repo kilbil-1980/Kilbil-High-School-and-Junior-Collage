@@ -18,43 +18,46 @@ export default function Career() {
     queryKey: ["/api/careers"],
   });
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-soft-white py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Career Opportunities</h1>
+          <div className="inline-block mb-4 px-4 py-2 bg-pale-beige rounded-full border border-golden-yellow/30">
+            <span className="text-royal-blue font-semibold text-sm">Join Our Team</span>
+          </div>
+          <h1 className="text-5xl font-bold mb-4 text-royal-blue" data-testid="text-page-title">Career Opportunities</h1>
           <p className="text-lg text-muted-foreground">
             Join our team of dedicated educators and make a difference
           </p>
         </div>
 
-        <Card className="mb-8">
+        <Card className="mb-8 border-t-4" style={{borderTopColor: '#1E3A8A'}}>
           <CardHeader>
-            <CardTitle className="text-2xl">Why Work With Us?</CardTitle>
+            <CardTitle className="text-2xl text-royal-blue">Why Work With Us?</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex gap-4">
-              <Heart className="w-8 h-8 text-primary flex-shrink-0" />
+              <Heart className="w-8 h-8 flex-shrink-0" style={{color: '#DC4A38'}} />
               <div>
                 <h3 className="font-semibold mb-2">Meaningful Work</h3>
                 <p className="text-sm text-muted-foreground">Shape young minds and contribute to the future of education</p>
               </div>
             </div>
             <div className="flex gap-4">
-              <Users className="w-8 h-8 text-secondary flex-shrink-0" />
+              <Users className="w-8 h-8 flex-shrink-0" style={{color: '#0EA5E9'}} />
               <div>
                 <h3 className="font-semibold mb-2">Supportive Environment</h3>
                 <p className="text-sm text-muted-foreground">Work with experienced colleagues in a collaborative atmosphere</p>
               </div>
             </div>
             <div className="flex gap-4">
-              <GraduationCap className="w-8 h-8 text-primary flex-shrink-0" />
+              <GraduationCap className="w-8 h-8 flex-shrink-0" style={{color: '#FCD34D'}} />
               <div>
                 <h3 className="font-semibold mb-2">Professional Growth</h3>
                 <p className="text-sm text-muted-foreground">Opportunities for training and career development</p>
               </div>
             </div>
             <div className="flex gap-4">
-              <Briefcase className="w-8 h-8 text-secondary flex-shrink-0" />
+              <Briefcase className="w-8 h-8 flex-shrink-0" style={{color: '#1E3A8A'}} />
               <div>
                 <h3 className="font-semibold mb-2">Competitive Benefits</h3>
                 <p className="text-sm text-muted-foreground">Attractive salary packages and benefits</p>
@@ -63,9 +66,9 @@ export default function Career() {
           </CardContent>
         </Card>
 
-        <Card className="mb-8">
+        <Card className="mb-8 border-t-4" style={{borderTopColor: '#DC4A38'}}>
           <CardHeader>
-            <CardTitle>Current Openings</CardTitle>
+            <CardTitle className="text-royal-blue">Current Openings</CardTitle>
           </CardHeader>
           <CardContent>
             {!careers || careers.length === 0 ? (
@@ -91,9 +94,9 @@ export default function Career() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-t-4" style={{borderTopColor: '#0EA5E9'}}>
           <CardHeader>
-            <CardTitle>How to Apply</CardTitle>
+            <CardTitle className="text-royal-blue">How to Apply</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground" data-testid="text-apply-instructions">
