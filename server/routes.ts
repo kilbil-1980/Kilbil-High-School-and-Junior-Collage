@@ -424,16 +424,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if ((req.session as any)?.adminRole !== "master-admin") {
         return res.status(403).json({ message: "Only master admins can update users" });
       }
-      const { password, role } = req.body;
+      const { password, role, newUsername } = req.body;
       const old = await storage.getAdminUser(req.params.username);
       const updates: any = {};
       if (password) updates.password = password;
       if (role) updates.role = role;
+      if (newUsername) updates.username = newUsername;
       const user = await storage.updateAdminUser(req.params.username, updates);
       await logAuditEvent(req, "UPDATE", "admin_users", req.params.username, { username: old?.username, role: old?.role }, { username: user.username, role: user.role });
       res.json({ username: user.username, role: user.role });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to update user" });
+    } catch (error: any) {
+      console.error("Update admin user error:", error);
+      res.status(500).json({ message: error?.message || "Failed to update user" });
     }
   });
 
