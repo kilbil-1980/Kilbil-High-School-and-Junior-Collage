@@ -68,9 +68,10 @@ app.use(session({
 app.use(express.json({
   verify: (req, _res, buf) => {
     req.rawBody = buf;
-  }
+  },
+  limit: '50mb'
 }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 // Configure CORS for cross-origin requests from different deployment URLs
 app.use((req, res, next) => {

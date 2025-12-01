@@ -224,6 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         photographsUrl: fileUrls?.photographs || undefined,
         addressProofUrl: fileUrls?.addressProof || undefined,
         parentIdProofUrl: fileUrls?.parentIdProof || undefined,
+        submittedAt: new Date(),
       };
 
       const parsed = insertAdmissionSchema.parse(admissionData);
