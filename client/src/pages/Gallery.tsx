@@ -83,12 +83,15 @@ export default function Gallery() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-soft-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Gallery</h1>
-          <p className="text-lg text-muted-foreground">
-            Moments and memories from our school life
+          <div className="inline-block mb-4 px-4 py-2 bg-pale-beige rounded-full border border-golden-yellow/30">
+            <span className="text-royal-blue font-semibold text-sm">Memory Lane</span>
+          </div>
+          <h1 className="text-5xl font-bold mb-4 text-royal-blue" data-testid="text-page-title">School Moments</h1>
+          <p className="text-lg text-slate-gray">
+            Cherished memories from our school community
           </p>
         </div>
 
@@ -96,7 +99,7 @@ export default function Gallery() {
           {categories.map((category) => (
             <Button
               key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
+              className={selectedCategory === category ? "bg-royal-blue text-white" : "bg-pale-beige text-royal-blue border-golden-yellow/50"}
               onClick={() => {
                 setSelectedCategory(category);
                 setCurrentPage(1);

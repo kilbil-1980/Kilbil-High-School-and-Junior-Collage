@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Users, BookOpen, GraduationCap, MapPin, Calendar, Phone, Star } from "lucide-react";
+import { Award, Users, BookOpen, GraduationCap, MapPin, Calendar, Phone, Star, ArrowRight } from "lucide-react";
 import heroBanner from "@assets/generated_images/school_building_hero_banner.png";
 import { setSEOMetaTags, setStructuredData, pageMetadata, getSchoolStructuredData } from "@/lib/seo";
 
@@ -19,28 +19,33 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <div 
-        className="relative h-[500px] flex items-center justify-center text-white"
+        className="relative h-[600px] flex items-center justify-center text-white overflow-hidden"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${heroBanner})`,
+          backgroundImage: `linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(71, 85, 105, 0.7) 100%), url(${heroBanner})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        <div className="text-center px-4 max-w-4xl">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4" data-testid="text-hero-title">
-            Kilbil High School & Junior Collage
+        <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-golden-yellow to-transparent"></div>
+        <div className="text-center px-4 max-w-4xl relative z-10">
+          <div className="inline-block mb-4 px-4 py-2 bg-golden-yellow/20 rounded-full border border-golden-yellow/40">
+            <span className="text-golden-yellow font-semibold text-sm">Excellence Since 1980</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 font-poppins" data-testid="text-hero-title">
+            Kilbil High School & Junior College
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90">
-            Nurturing Young Minds Since 1980
+          <p className="text-xl md:text-2xl mb-10 text-white/95">
+            Nurturing Young Minds, Building Tomorrow's Leaders
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/admissions">
-              <Button size="lg" variant="default" className="bg-primary border border-primary-border" data-testid="button-apply-now">
+              <Button size="lg" className="bg-golden-yellow text-royal-blue hover:bg-terracotta hover:text-white font-semibold" data-testid="button-apply-now">
                 Apply Now
+                <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
             <Link href="/about/why-us">
-              <Button size="lg" variant="outline" className="bg-background/20 backdrop-blur-sm border-white/30 text-white hover:bg-background/30" data-testid="button-learn-more">
+              <Button size="lg" className="border-2 border-golden-yellow text-golden-yellow bg-transparent hover:bg-golden-yellow/10" data-testid="button-learn-more">
                 Learn More
               </Button>
             </Link>
@@ -50,32 +55,32 @@ export default function Home() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-          <Card className="text-center">
+          <Card className="text-center border-2 border-royal-blue/20 hover:border-royal-blue/50 transition-colors">
             <CardContent className="pt-6">
-              <Calendar className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <div className="text-2xl font-bold mb-1" data-testid="text-established">1980</div>
-              <div className="text-sm text-muted-foreground">Established</div>
+              <Calendar className="w-8 h-8 mx-auto mb-3" style={{color: '#1E3A8A'}} />
+              <div className="text-2xl font-bold mb-1 text-royal-blue" data-testid="text-established">1980</div>
+              <div className="text-sm text-slate-gray">Established</div>
             </CardContent>
           </Card>
-          <Card className="text-center">
+          <Card className="text-center border-2 border-terracotta/20 hover:border-terracotta/50 transition-colors">
             <CardContent className="pt-6">
-              <Users className="w-8 h-8 mx-auto mb-3 text-secondary" />
-              <div className="text-2xl font-bold mb-1" data-testid="text-students">1123</div>
-              <div className="text-sm text-muted-foreground">Students</div>
+              <Users className="w-8 h-8 mx-auto mb-3" style={{color: '#DC4A38'}} />
+              <div className="text-2xl font-bold mb-1 text-terracotta" data-testid="text-students">1123</div>
+              <div className="text-sm text-slate-gray">Students</div>
             </CardContent>
           </Card>
-          <Card className="text-center">
+          <Card className="text-center border-2 border-sky-blue/20 hover:border-sky-blue/50 transition-colors">
             <CardContent className="pt-6">
-              <Star className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <div className="text-2xl font-bold mb-1" data-testid="text-rating">4.1</div>
-              <div className="text-sm text-muted-foreground">Rating (31 reviews)</div>
+              <Star className="w-8 h-8 mx-auto mb-3" style={{color: '#0EA5E9'}} />
+              <div className="text-2xl font-bold mb-1" style={{color: '#0EA5E9'}} data-testid="text-rating">4.1</div>
+              <div className="text-sm text-slate-gray">Rating (31 reviews)</div>
             </CardContent>
           </Card>
-          <Card className="text-center">
+          <Card className="text-center border-2 border-golden-yellow/20 hover:border-golden-yellow/50 transition-colors">
             <CardContent className="pt-6">
-              <BookOpen className="w-8 h-8 mx-auto mb-3 text-secondary" />
-              <div className="text-2xl font-bold mb-1" data-testid="text-classrooms">29</div>
-              <div className="text-sm text-muted-foreground">Classrooms</div>
+              <BookOpen className="w-8 h-8 mx-auto mb-3" style={{color: '#FCD34D'}} />
+              <div className="text-2xl font-bold mb-1 text-royal-blue" data-testid="text-classrooms">29</div>
+              <div className="text-sm text-slate-gray">Classrooms</div>
             </CardContent>
           </Card>
         </div>
