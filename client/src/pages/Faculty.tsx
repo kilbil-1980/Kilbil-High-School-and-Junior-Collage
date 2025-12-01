@@ -44,7 +44,21 @@ export default function FacultyPage() {
       });
       const res = await fetch(`/api/faculty?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch faculty");
-      return res.json();
+      const data = await res.json();
+      // Handle both old format (array) and new format (object with pagination)
+      if (Array.isArray(data)) {
+        return {
+          faculty: data,
+          pagination: {
+            page: 1,
+            limit: ITEMS_PER_PAGE,
+            total: data.length,
+            totalPages: 1,
+            hasMore: false,
+          },
+        };
+      }
+      return data;
     },
     refetchInterval: 5000,
     refetchOnWindowFocus: true,

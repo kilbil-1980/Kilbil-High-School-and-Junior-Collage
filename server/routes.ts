@@ -108,8 +108,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/faculty", async (req, res) => {
     try {
-      const faculty = await storage.getFaculty();
-      res.json(faculty);
+      const page = Math.max(1, parseInt(req.query.page as string) || 1);
+      const limit = Math.max(1, parseInt(req.query.limit as string) || 12);
+      
+      let allFaculty = await storage.getFaculty();
+      // Show oldest faculty first
+      allFaculty = [...allFaculty].sort((a, b) => new Date(a.id).getTime() - new Date(b.id).getTime());
+      
+      const total = allFaculty.length;
+      const totalPages = Math.ceil(total / limit);
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      
+      const faculty = allFaculty.slice(startIndex, endIndex);
+      
+      // If no pagination params, return just the array for backward compatibility
+      if (!req.query.page && !req.query.limit) {
+        res.json(faculty);
+      } else {
+        res.json({
+          faculty,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages,
+            hasMore: page < totalPages,
+          },
+        });
+      }
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch faculty" });
     }
