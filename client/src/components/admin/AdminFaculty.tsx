@@ -38,9 +38,11 @@ export function AdminFaculty() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  const { data: allFacultyList = [] } = useQuery<Faculty[]>({
+  const { data: facultyResponse } = useQuery<{ data: Faculty[] }>({
     queryKey: ["/api/faculty?limit=1000"],
   });
+
+  const allFacultyList = facultyResponse?.data || [];
 
   const filteredList = allFacultyList
     .filter((f) =>
