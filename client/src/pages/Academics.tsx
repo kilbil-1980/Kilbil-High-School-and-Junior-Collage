@@ -201,9 +201,7 @@ export default function Academics() {
             Join Kilbil High School & Junior College and experience comprehensive education that shapes future leaders
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-              Apply Now
-            </Button>
-            <Button size="lg" variant="outline" data-testid="button-contact" onClick={() => navigate("/contact")}>
+            <Button size="lg" variant="default" data-testid="button-contact" onClick={() => navigate("/contact")}>
               Contact Us
             </Button>
           </div>
