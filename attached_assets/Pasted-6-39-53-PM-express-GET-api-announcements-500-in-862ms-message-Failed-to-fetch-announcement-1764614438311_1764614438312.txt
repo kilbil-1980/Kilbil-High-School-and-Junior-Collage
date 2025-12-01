@@ -1,0 +1,51 @@
+6:39:53 PM [express] GET /api/announcements 500 in 862ms :: {"message":"Failed to fetch announcement…
+6:39:55 PM [express] GET /api/admin/check 401 in 1ms :: {"authenticated":false}
+6:40:00 PM [express] GET /api/admin/check 401 in 1ms :: {"authenticated":false}
+[getAnnouncements] Database error: error: The endpoint has been disabled. Enable it using Neon API and retry.
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getAnnouncements (/home/runner/workspace/server/storage.ts:71:23)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:50:29) {
+  length: 88,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
+[GET /api/announcements] Error: error: The endpoint has been disabled. Enable it using Neon API and retry.
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getAnnouncements (/home/runner/workspace/server/storage.ts:71:23)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:50:29) {
+  length: 88,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
