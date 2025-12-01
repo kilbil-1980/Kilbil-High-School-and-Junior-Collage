@@ -49,24 +49,28 @@ export default function Home() {
 
   const schoolLevels = [
     {
-      title: 'Pre-Primary',
+      title: 'Elementary',
       description: 'Nurturing young minds with play-based learning and early childhood development programs.',
       icon: BookOpen,
+      href: '/academics/elementary',
     },
     {
-      title: 'Primary School',
+      title: 'Primary',
       description: 'Building strong foundations in academics, character, and essential life skills.',
       icon: GraduationCap,
+      href: '/academics/primary',
     },
     {
-      title: 'Secondary School',
+      title: 'Secondary',
       description: 'Comprehensive education preparing students for higher studies and future challenges.',
       icon: Award,
+      href: '/academics/secondary',
     },
     {
-      title: 'Junior College',
+      title: 'Higher Secondary',
       description: 'Advanced learning paths in Science, Commerce, and Arts for college-ready students.',
       icon: TrendingUp,
+      href: '/academics/higher-secondary',
     },
   ];
 
@@ -195,15 +199,17 @@ export default function Home() {
             {schoolLevels.map((level, index) => {
               const IconComponent = level.icon;
               return (
-                <Card key={index} className="hover-elevate active-elevate-2 transition-all" data-testid={`card-level-${index}`}>
-                  <CardHeader>
-                    <IconComponent className="w-10 h-10 mb-3 text-primary" />
-                    <CardTitle>{level.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{level.description}</p>
-                  </CardContent>
-                </Card>
+                <Link key={index} href={level.href}>
+                  <Card className="hover-elevate active-elevate-2 transition-all cursor-pointer h-full" data-testid={`card-level-${index}`}>
+                    <CardHeader>
+                      <IconComponent className="w-10 h-10 mb-3 text-primary" />
+                      <CardTitle>{level.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">{level.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
